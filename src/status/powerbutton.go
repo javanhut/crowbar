@@ -30,6 +30,7 @@ func NewPowerButton() *PowerButton {
 	// Create popover menu
 	p.popover = gtk.NewPopover()
 	p.popover.AddCSSClass("power-menu")
+	p.popover.SetAutohide(true)
 
 	// Create menu content
 	menuBox := gtk.NewBox(gtk.OrientationVertical, 4)

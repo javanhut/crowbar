@@ -53,6 +53,7 @@ func NewBrightness() *Brightness {
 	// Create popover with slider
 	b.popover = gtk.NewPopover()
 	b.popover.AddCSSClass("brightness-popover")
+	b.popover.SetAutohide(true)
 
 	popoverContent := gtk.NewBox(gtk.OrientationVertical, 8)
 	popoverContent.SetMarginTop(12)

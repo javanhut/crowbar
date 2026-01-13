@@ -14,18 +14,21 @@ const (
 
 // Bar represents the main status bar window
 type Bar struct {
-	Window      *gtk.Window
-	box         *gtk.Box
-	workspaces  *Workspaces
-	windowTitle *WindowTitle
-	systray     *Systray
-	audio       *Audio
-	brightness  *Brightness
-	power       *Power
-	battery     *Battery
-	clock       *Clock
-	powerBtn    *PowerButton
-	client      *hyprland.Client
+	Window       *gtk.Window
+	box          *gtk.Box
+	workspaces   *Workspaces
+	windowTitle  *WindowTitle
+	appTracker   *AppTracker
+	media        *Media
+	systray      *Systray
+	connectivity *Connectivity
+	audio        *Audio
+	brightness   *Brightness
+	power        *Power
+	battery      *Battery
+	clock        *Clock
+	powerBtn     *PowerButton
+	client       *hyprland.Client
 }
 
 // NewBar creates a new status bar instance
@@ -95,6 +98,16 @@ func NewBar(app *gtk.Application, client *hyprland.Client) *Bar {
 		bar.box.Append(label)
 	}
 
+	// Add app tracker (after window title)
+	if client != nil {
+		bar.appTracker = NewAppTracker(client)
+		bar.box.Append(bar.appTracker.Box)
+	}
+
+	// Add media player widget
+	bar.media = NewMedia()
+	bar.box.Append(bar.media.Box)
+
 	// Add spacer to push right-side widgets to the right
 	spacer := gtk.NewBox(gtk.OrientationHorizontal, 0)
 	spacer.SetHExpand(true)
@@ -103,6 +116,10 @@ func NewBar(app *gtk.Application, client *hyprland.Client) *Bar {
 	// Add system tray (right side)
 	bar.systray = NewSystray()
 	bar.box.Append(bar.systray.Box)
+
+	// Add connectivity widget (WiFi/Bluetooth)
+	bar.connectivity = NewConnectivity()
+	bar.box.Append(bar.connectivity.Box)
 
 	// Add audio widget (right side)
 	bar.audio = NewAudio()
@@ -181,6 +198,18 @@ func (b *Bar) SetupEvents(listener *hyprland.EventListener) {
 	listener.On(hyprland.EventCloseWindow, func(e hyprland.Event) {
 		glib.IdleAdd(func() {
 			b.windowTitle.Refresh()
+			if b.appTracker != nil {
+				b.appTracker.Refresh()
+			}
+		})
+	})
+
+	// Window open event for app tracker
+	listener.On(hyprland.EventOpenWindow, func(e hyprland.Event) {
+		glib.IdleAdd(func() {
+			if b.appTracker != nil {
+				b.appTracker.Refresh()
+			}
 		})
 	})
 
@@ -194,8 +223,17 @@ func (b *Bar) Show() {
 
 // Stop cleans up bar resources
 func (b *Bar) Stop() {
+	if b.appTracker != nil {
+		b.appTracker.Stop()
+	}
+	if b.media != nil {
+		b.media.Stop()
+	}
 	if b.systray != nil {
 		b.systray.Stop()
+	}
+	if b.connectivity != nil {
+		b.connectivity.Stop()
 	}
 	if b.audio != nil {
 		b.audio.Stop()

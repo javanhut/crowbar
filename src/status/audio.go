@@ -48,6 +48,7 @@ func NewAudio() *Audio {
 	// Create popover with slider
 	a.popover = gtk.NewPopover()
 	a.popover.AddCSSClass("audio-popover")
+	a.popover.SetAutohide(true)
 
 	popoverContent := gtk.NewBox(gtk.OrientationVertical, 8)
 	popoverContent.SetMarginTop(12)

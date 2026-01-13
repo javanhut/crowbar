@@ -848,3 +848,444 @@ button:active {
     font-size: 12px;
     font-weight: 500;
 }
+
+/* === App Tracker - Valhalla's Warriors === */
+.app-tracker {
+    background: linear-gradient(145deg,
+        alpha(#1e2030, 0.8) 0%,
+        alpha(#13141c, 0.9) 100%);
+    border-radius: 8px;
+    padding: 4px 8px;
+    margin: 2px 4px;
+    border: 1px solid alpha(#bb9af7, 0.25);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.app-tracker:hover {
+    border-color: alpha(#bb9af7, 0.45);
+}
+
+.app-button {
+    background: linear-gradient(180deg,
+        alpha(#2f3549, 0.5) 0%,
+        alpha(#1a1b26, 0.7) 100%);
+    border-radius: 6px;
+    min-width: 32px;
+    min-height: 26px;
+    padding: 2px 6px;
+    margin: 0 2px;
+    border: 1px solid alpha(#7aa2f7, 0.2);
+    transition: all 150ms ease;
+}
+
+.app-button:hover {
+    background: linear-gradient(180deg,
+        alpha(#3b4261, 0.7) 0%,
+        alpha(#2f3549, 0.8) 100%);
+    border-color: alpha(#7aa2f7, 0.45);
+    box-shadow: 0 0 12px alpha(#7aa2f7, 0.25);
+}
+
+.app-button.focused {
+    background: linear-gradient(135deg,
+        alpha(#7aa2f7, 0.3) 0%,
+        alpha(#bb9af7, 0.2) 100%);
+    border-color: alpha(#7aa2f7, 0.55);
+    box-shadow:
+        0 0 12px alpha(#7aa2f7, 0.35),
+        inset 0 1px 0 alpha(#ffffff, 0.1);
+}
+
+.app-button.minimized {
+    opacity: 0.5;
+    border-style: dashed;
+    border-color: alpha(#a9b1d6, 0.3);
+}
+
+.app-button.minimized:hover {
+    opacity: 0.8;
+    border-color: alpha(#7aa2f7, 0.4);
+}
+
+.app-icon {
+    -gtk-icon-size: 18px;
+    opacity: 0.9;
+}
+
+.app-button:hover .app-icon {
+    opacity: 1;
+}
+
+.app-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: #7dcfff;
+    background: alpha(#7dcfff, 0.2);
+    border-radius: 8px;
+    padding: 0 4px;
+    min-width: 14px;
+}
+
+/* App Context Menu */
+.app-menu {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#7aa2f7, 0.35);
+    border-radius: 12px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#7aa2f7, 0.5);
+}
+
+.app-menu-header {
+    color: #c0caf5;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+}
+
+.app-menu-item {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 2px 0;
+    transition: all 150ms ease;
+}
+
+.app-menu-item:hover {
+    background: linear-gradient(90deg,
+        alpha(#7aa2f7, 0.2) 0%,
+        alpha(#7aa2f7, 0.08) 100%);
+}
+
+.app-menu-item.app-menu-danger:hover {
+    background: linear-gradient(90deg,
+        alpha(#f7768e, 0.25) 0%,
+        alpha(#f7768e, 0.1) 100%);
+}
+
+.app-menu-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: #bb9af7;
+    text-shadow: 0 0 8px alpha(#bb9af7, 0.5);
+    min-width: 20px;
+}
+
+.app-menu-danger .app-menu-rune {
+    color: #f7768e;
+    text-shadow: 0 0 8px alpha(#f7768e, 0.5);
+}
+
+.app-menu-label {
+    color: #c0caf5;
+    font-size: 12px;
+}
+
+/* === Connectivity - Bifrost Bridge Controls === */
+.connectivity {
+    background: linear-gradient(145deg,
+        alpha(#1e2030, 0.8) 0%,
+        alpha(#13141c, 0.9) 100%);
+    border-radius: 8px;
+    padding: 4px 10px;
+    margin: 2px 4px;
+    border: 1px solid alpha(#73daca, 0.25);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+    transition: all 200ms ease;
+}
+
+.connectivity:hover {
+    border-color: alpha(#73daca, 0.5);
+    box-shadow: 0 0 16px alpha(#73daca, 0.25);
+}
+
+.connectivity.wifi-disabled .connectivity-icon:first-child {
+    opacity: 0.4;
+}
+
+.connectivity.bt-disabled .connectivity-icon:last-child {
+    opacity: 0.4;
+}
+
+.connectivity-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.connectivity-icon {
+    -gtk-icon-size: 16px;
+    margin: 0 2px;
+    opacity: 0.9;
+}
+
+.connectivity-popover {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#73daca, 0.35);
+    border-radius: 14px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#73daca, 0.5),
+        0 0 60px alpha(#73daca, 0.1),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.connectivity-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(#1e2030, 0.5);
+}
+
+.connectivity-separator {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        alpha(#73daca, 0.3) 50%,
+        transparent 100%);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+.connectivity-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 16px;
+    color: #73daca;
+    text-shadow: 0 0 8px alpha(#73daca, 0.6);
+    min-width: 24px;
+}
+
+.connectivity-section-icon {
+    -gtk-icon-size: 20px;
+    opacity: 0.9;
+}
+
+.connectivity-title {
+    color: #c0caf5;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.connectivity-status {
+    color: alpha(#a9b1d6, 0.7);
+    font-size: 11px;
+}
+
+.connectivity-status.connected {
+    color: #73daca;
+}
+
+.connectivity-switch {
+    margin-left: 8px;
+}
+
+.connectivity-switch slider {
+    background: linear-gradient(180deg,
+        #3b4261 0%,
+        #2f3549 100%);
+    border-radius: 12px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.connectivity-switch:checked slider {
+    background: linear-gradient(180deg,
+        #73daca 0%,
+        #7dcfff 100%);
+}
+
+.connectivity-switch trough {
+    background: alpha(#1a1b26, 0.8);
+    border: 1px solid alpha(#7aa2f7, 0.2);
+    border-radius: 14px;
+    min-width: 48px;
+    min-height: 24px;
+}
+
+.connectivity-switch:checked trough {
+    background: alpha(#73daca, 0.2);
+    border-color: alpha(#73daca, 0.4);
+}
+
+/* === Media Player - Skaldic Songs === */
+.media {
+    background: linear-gradient(145deg,
+        alpha(#1e2030, 0.8) 0%,
+        alpha(#13141c, 0.9) 100%);
+    border-radius: 8px;
+    padding: 4px 10px;
+    margin: 2px 4px;
+    border: 1px solid alpha(#bb9af7, 0.25);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+    transition: all 200ms ease;
+}
+
+.media:hover {
+    border-color: alpha(#bb9af7, 0.5);
+    box-shadow: 0 0 16px alpha(#bb9af7, 0.25);
+}
+
+.media.playing {
+    border-color: alpha(#9ece6a, 0.4);
+}
+
+.media.playing:hover {
+    border-color: alpha(#9ece6a, 0.6);
+    box-shadow: 0 0 16px alpha(#9ece6a, 0.25);
+}
+
+.media.paused {
+    border-color: alpha(#e0af68, 0.35);
+}
+
+.media-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.media-status-icon {
+    -gtk-icon-size: 14px;
+    margin-right: 4px;
+}
+
+.media.playing .media-status-icon {
+    color: #9ece6a;
+}
+
+.media.paused .media-status-icon {
+    color: #e0af68;
+}
+
+.media-title {
+    color: #c0caf5;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.media-popover {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#bb9af7, 0.35);
+    border-radius: 14px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#bb9af7, 0.5),
+        0 0 60px alpha(#bb9af7, 0.1),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.media-popover-content {
+    min-width: 280px;
+}
+
+.media-track-info {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(#1e2030, 0.5);
+}
+
+.media-track-title {
+    color: #c0caf5;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.media-track-artist {
+    color: alpha(#a9b1d6, 0.8);
+    font-size: 12px;
+}
+
+.media-progress {
+    min-height: 6px;
+    border-radius: 3px;
+    background: alpha(#1a1b26, 0.8);
+}
+
+.media-progress trough {
+    min-height: 6px;
+    border-radius: 3px;
+    background: alpha(#1a1b26, 0.8);
+    border: 1px solid alpha(#7aa2f7, 0.2);
+}
+
+.media-progress progress {
+    min-height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg,
+        #bb9af7 0%,
+        #7aa2f7 100%);
+    box-shadow: 0 0 8px alpha(#bb9af7, 0.4);
+}
+
+.media-position {
+    color: alpha(#a9b1d6, 0.7);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.media-controls {
+    padding-top: 8px;
+}
+
+.media-control-btn {
+    background: linear-gradient(180deg,
+        alpha(#2f3549, 0.6) 0%,
+        alpha(#1a1b26, 0.8) 100%);
+    border: 1px solid alpha(#7aa2f7, 0.25);
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 150ms ease;
+}
+
+.media-control-btn:hover {
+    background: linear-gradient(180deg,
+        alpha(#3b4261, 0.7) 0%,
+        alpha(#2f3549, 0.9) 100%);
+    border-color: alpha(#7aa2f7, 0.45);
+    box-shadow: 0 0 12px alpha(#7aa2f7, 0.25);
+}
+
+.media-control-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: #bb9af7;
+    text-shadow: 0 0 8px alpha(#bb9af7, 0.5);
+}
+
+.media-play-pause {
+    background: linear-gradient(135deg,
+        alpha(#bb9af7, 0.3) 0%,
+        alpha(#7aa2f7, 0.2) 100%);
+    border: 1px solid alpha(#bb9af7, 0.4);
+    border-radius: 50%;
+    padding: 12px;
+    min-width: 48px;
+    min-height: 48px;
+    transition: all 150ms ease;
+}
+
+.media-play-pause:hover {
+    background: linear-gradient(135deg,
+        alpha(#bb9af7, 0.5) 0%,
+        alpha(#7aa2f7, 0.4) 100%);
+    border-color: alpha(#bb9af7, 0.6);
+    box-shadow: 0 0 20px alpha(#bb9af7, 0.4);
+}
+
+.media-control-icon {
+    -gtk-icon-size: 24px;
+    color: #c0caf5;
+}
