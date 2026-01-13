@@ -79,10 +79,12 @@ func loadCSS() {
 
 	// Try to find CSS file in various locations
 	cssLocations := []string{
-		"style.css",                                               // Current directory
-		filepath.Join(getExecutableDir(), "style.css"),            // Executable directory
-		filepath.Join(os.Getenv("HOME"), ".config/crowbar/style.css"), // User config
-		"/usr/share/crowbar/style.css",                            // System-wide
+		"style.css",                                                       // Current directory
+		filepath.Join(getExecutableDir(), "style.css"),                    // Executable directory
+		filepath.Join(os.Getenv("HOME"), ".config/crowbar/style.css"),     // User config
+		filepath.Join(os.Getenv("HOME"), ".local/share/crowbar/style.css"), // User local share (make user-install)
+		"/usr/local/share/crowbar/style.css",                              // Local system-wide (make install)
+		"/usr/share/crowbar/style.css",                                    // System-wide (package manager)
 	}
 
 	var cssPath string
