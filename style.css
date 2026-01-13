@@ -1,0 +1,850 @@
+/* CrowBar - Nordic Aesir Theme
+ * Forged in the fires of Muspelheim, cooled in the frost of Niflheim
+ * Blessed by Odin's wisdom, guided by the Elder Futhark
+ *
+ * Elder Futhark Runes used:
+ * ᚠ Fehu   - Wealth/Energy (Battery)
+ * ᚢ Uruz   - Power/Strength (CPU)
+ * ᚦ Thurisaz - Protection/Power (Power Button)
+ * ᚨ Ansuz  - Voice of Odin (Audio)
+ * ᚱ Raidho - Journey (Logout)
+ * ᚺ Hagalaz - Transformation (Shutdown)
+ * ᚾ Nauthiz - Rest (Suspend)
+ * ᛁ Isa    - Ice/Stillness (Lock)
+ * ᛃ Jera   - Time/Cycles (Clock)
+ * ᛉ Algiz  - Protection (System Tray)
+ * ᛊ Sowilo - Sun/Light (Brightness)
+ * ᛞ Dagaz  - Day (Clock)
+ * ᛟ Othala - Home/Return (Reboot)
+ */
+
+/* === Sacred Color Palette of the Nine Realms === */
+/* Ginnungagap - The Primordial Void */
+@define-color void_deep #0d0e14;
+@define-color void_dark #13141c;
+@define-color void_mid #1a1b26;
+@define-color void_light #1e2030;
+
+/* Niflheim - Realm of Ice and Mist */
+@define-color frost_dark #24283b;
+@define-color frost_mid #2f3549;
+@define-color frost_light #3b4261;
+
+/* Bifrost - The Rainbow Bridge */
+@define-color bifrost_blue #7aa2f7;
+@define-color bifrost_cyan #7dcfff;
+@define-color bifrost_teal #73daca;
+@define-color bifrost_purple #bb9af7;
+
+/* Muspelheim - Realm of Fire */
+@define-color fire_orange #ff9e64;
+@define-color fire_red #f7768e;
+@define-color fire_ember #db4b4b;
+
+/* Yggdrasil - The World Tree */
+@define-color leaf_green #9ece6a;
+@define-color mead_gold #e0af68;
+@define-color bark_brown #8a6642;
+
+/* Asgard - Realm of the Gods */
+@define-color starlight #c0caf5;
+@define-color moonlight #a9b1d6;
+@define-color sunlight #ffc777;
+
+/* === The Foundation - Ginnungagap === */
+window {
+    background-color: transparent;
+}
+
+/* === Bifrost Bridge - Main Bar === */
+.bar-container {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.95) 0%,
+        alpha(#13141c, 0.93) 30%,
+        alpha(#1a1b26, 0.90) 100%);
+    border-bottom: 2px solid alpha(#7aa2f7, 0.4);
+    box-shadow:
+        0 4px 20px alpha(#000000, 0.6),
+        0 0 2px alpha(#7aa2f7, 0.6),
+        0 0 40px alpha(#7aa2f7, 0.1),
+        inset 0 1px 0 alpha(#7aa2f7, 0.15),
+        inset 0 -1px 0 alpha(#000000, 0.3);
+    padding: 3px 8px;
+}
+
+/* === Elder Futhark Rune Styling === */
+.module-rune,
+.clock-rune,
+.power-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #bb9af7;
+    text-shadow:
+        0 0 8px alpha(#bb9af7, 0.8),
+        0 0 16px alpha(#bb9af7, 0.4);
+    margin-right: 6px;
+    opacity: 0.9;
+    transition: all 200ms ease;
+}
+
+.module-rune:hover,
+.clock-rune:hover {
+    color: #7dcfff;
+    text-shadow:
+        0 0 12px alpha(#7dcfff, 1),
+        0 0 24px alpha(#7dcfff, 0.6);
+    opacity: 1;
+}
+
+/* === Halls of Valhalla - Workspaces === */
+.workspaces {
+    background-color: transparent;
+    padding: 0;
+    margin: 0 4px;
+}
+
+.workspace-btn {
+    background: linear-gradient(180deg,
+        alpha(#1a1b26, 0.6) 0%,
+        alpha(#0d0e14, 0.7) 100%);
+    border-radius: 4px;
+    min-width: 26px;
+    min-height: 26px;
+    padding: 0 8px;
+    margin: 0 2px;
+    border: 1px solid alpha(#7aa2f7, 0.2);
+    box-shadow: inset 0 1px 0 alpha(#ffffff, 0.03);
+    transition: all 150ms ease;
+}
+
+.workspace-btn label {
+    color: alpha(#c0caf5, 0.35);
+    font-weight: 700;
+    font-size: 11px;
+    text-shadow: none;
+}
+
+.workspace-btn:hover {
+    background: linear-gradient(180deg,
+        alpha(#2f3549, 0.8) 0%,
+        alpha(#1a1b26, 0.9) 100%);
+    border-color: alpha(#7aa2f7, 0.5);
+    box-shadow:
+        0 0 12px alpha(#7aa2f7, 0.3),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.workspace-btn:hover label {
+    color: #c0caf5;
+}
+
+/* Active workspace - Odin's High Seat */
+.workspace-btn.active {
+    background: linear-gradient(135deg,
+        #7aa2f7 0%,
+        #7dcfff 40%,
+        #73daca 100%);
+    border: 1px solid alpha(#ffffff, 0.4);
+    box-shadow:
+        0 0 16px alpha(#7aa2f7, 0.7),
+        0 0 32px alpha(#7dcfff, 0.4),
+        0 0 48px alpha(#73daca, 0.2),
+        inset 0 1px 0 alpha(#ffffff, 0.4),
+        inset 0 -1px 0 alpha(#000000, 0.2);
+}
+
+.workspace-btn.active label {
+    color: #0d0e14;
+    font-weight: 800;
+    text-shadow: 0 1px 0 alpha(#ffffff, 0.4);
+}
+
+/* Occupied workspace - Einherjar Stand Ready */
+.workspace-btn.occupied {
+    background: linear-gradient(180deg,
+        alpha(#2f3549, 0.7) 0%,
+        alpha(#1a1b26, 0.8) 100%);
+    border-color: alpha(#7aa2f7, 0.35);
+}
+
+.workspace-btn.occupied label {
+    color: #7aa2f7;
+    text-shadow: 0 0 8px alpha(#7aa2f7, 0.5);
+}
+
+/* === Saga of the Window === */
+.window-title {
+    background-color: transparent;
+    padding: 4px 16px;
+}
+
+.window-title label {
+    color: alpha(#c0caf5, 0.75);
+    font-size: 12px;
+    font-weight: 400;
+    font-style: italic;
+    text-shadow: 0 1px 2px alpha(#000000, 0.5);
+}
+
+/* === Rune Stone Modules Base === */
+.systray,
+.audio,
+.brightness,
+.power,
+.battery {
+    background: linear-gradient(145deg,
+        alpha(#1e2030, 0.8) 0%,
+        alpha(#13141c, 0.9) 100%);
+    border-radius: 8px;
+    padding: 4px 10px;
+    margin: 2px 4px;
+    border: 1px solid alpha(#7aa2f7, 0.25);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        inset 0 1px 0 alpha(#ffffff, 0.05),
+        inset 0 -1px 0 alpha(#000000, 0.2);
+    transition: all 200ms ease;
+}
+
+.systray:hover,
+.audio:hover,
+.brightness:hover,
+.power:hover,
+.battery:hover {
+    border-color: alpha(#7aa2f7, 0.5);
+    box-shadow:
+        0 0 16px alpha(#7aa2f7, 0.25),
+        0 4px 12px alpha(#000000, 0.5),
+        inset 0 1px 0 alpha(#ffffff, 0.08);
+}
+
+.systray label,
+.audio label,
+.brightness label,
+.power label,
+.battery label {
+    color: #c0caf5;
+    font-family: "JetBrains Mono", "Fira Code", "Iosevka", monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px alpha(#000000, 0.5);
+}
+
+.systray image,
+.audio image,
+.brightness image,
+.power image,
+.battery image {
+    -gtk-icon-style: symbolic;
+}
+
+/* === System Tray - Odin's Ravens Huginn & Muninn === */
+.systray {
+    border-color: alpha(#bb9af7, 0.25);
+}
+
+.systray:hover {
+    border-color: alpha(#bb9af7, 0.5);
+    box-shadow: 0 0 16px alpha(#bb9af7, 0.25);
+}
+
+.systray-icon {
+    margin: 0 3px;
+    opacity: 0.85;
+    transition: all 150ms ease;
+}
+
+.systray-icon:hover {
+    opacity: 1;
+}
+
+/* === Audio - Gjallarhorn's Call === */
+.audio {
+    border-color: alpha(#7dcfff, 0.25);
+}
+
+.audio:hover {
+    border-color: alpha(#7dcfff, 0.5);
+    box-shadow: 0 0 16px alpha(#7dcfff, 0.25);
+}
+
+.audio image {
+    color: #7dcfff;
+}
+
+.audio.muted {
+    border-color: alpha(#f7768e, 0.35);
+}
+
+.audio.muted image {
+    color: #f7768e;
+}
+
+.audio.muted label {
+    color: alpha(#c0caf5, 0.5);
+}
+
+.audio.muted .module-rune {
+    color: #f7768e;
+    text-shadow: 0 0 8px alpha(#f7768e, 0.6);
+}
+
+/* === Brightness - Sol's Golden Chariot === */
+.brightness {
+    border-color: alpha(#e0af68, 0.25);
+}
+
+.brightness:hover {
+    border-color: alpha(#e0af68, 0.5);
+    box-shadow: 0 0 16px alpha(#e0af68, 0.25);
+}
+
+.brightness image {
+    color: #e0af68;
+}
+
+.brightness .module-rune {
+    color: #e0af68;
+    text-shadow: 0 0 8px alpha(#e0af68, 0.8);
+}
+
+/* === Power/Temperature - Forges of Nidavellir === */
+.power {
+    border-color: alpha(#7aa2f7, 0.25);
+}
+
+.power:hover {
+    border-color: alpha(#7aa2f7, 0.5);
+    box-shadow: 0 0 16px alpha(#7aa2f7, 0.25);
+}
+
+.power image {
+    color: #7aa2f7;
+}
+
+.power.hot {
+    border-color: alpha(#ff9e64, 0.45);
+}
+
+.power.hot image {
+    color: #ff9e64;
+}
+
+.power.hot .module-rune {
+    color: #ff9e64;
+    text-shadow: 0 0 8px alpha(#ff9e64, 0.8);
+}
+
+.power.critical {
+    border-color: alpha(#f7768e, 0.55);
+    box-shadow: 0 0 12px alpha(#f7768e, 0.35);
+}
+
+.power.critical image,
+.power.critical .module-rune {
+    color: #f7768e;
+    animation: rune-pulse 1s ease-in-out infinite;
+}
+
+/* === Battery - Mjolnir's Stored Lightning === */
+.battery {
+    border-color: alpha(#9ece6a, 0.25);
+}
+
+.battery:hover {
+    border-color: alpha(#9ece6a, 0.5);
+    box-shadow: 0 0 16px alpha(#9ece6a, 0.25);
+}
+
+.battery image {
+    color: #9ece6a;
+}
+
+.battery .module-rune {
+    color: #9ece6a;
+    text-shadow: 0 0 8px alpha(#9ece6a, 0.8);
+}
+
+.battery.charging {
+    border-color: alpha(#e0af68, 0.45);
+    box-shadow: 0 0 12px alpha(#e0af68, 0.25);
+}
+
+.battery.charging image,
+.battery.charging .module-rune {
+    color: #e0af68;
+    animation: rune-glow 2s ease-in-out infinite;
+}
+
+.battery.low {
+    border-color: alpha(#ff9e64, 0.45);
+}
+
+.battery.low image,
+.battery.low .module-rune {
+    color: #ff9e64;
+}
+
+.battery.critical {
+    border-color: alpha(#f7768e, 0.55);
+    box-shadow: 0 0 12px alpha(#f7768e, 0.35);
+}
+
+.battery.critical image,
+.battery.critical .module-rune {
+    color: #f7768e;
+    animation: rune-pulse 1s ease-in-out infinite;
+}
+
+/* === Clock - The Norns' Weaving of Time === */
+.clock {
+    background: linear-gradient(135deg,
+        alpha(#7aa2f7, 0.12) 0%,
+        alpha(#bb9af7, 0.12) 50%,
+        alpha(#73daca, 0.12) 100%);
+    border-radius: 10px;
+    padding: 4px 12px;
+    margin: 2px 6px;
+    border: 1px solid alpha(#bb9af7, 0.35);
+    box-shadow:
+        0 0 20px alpha(#bb9af7, 0.15),
+        0 0 40px alpha(#7aa2f7, 0.08),
+        inset 0 1px 0 alpha(#ffffff, 0.1),
+        inset 0 -1px 0 alpha(#000000, 0.2);
+}
+
+.clock:hover {
+    border-color: alpha(#bb9af7, 0.55);
+    box-shadow:
+        0 0 24px alpha(#bb9af7, 0.3),
+        0 0 48px alpha(#7aa2f7, 0.15);
+}
+
+.clock-time {
+    color: #c0caf5;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-shadow:
+        0 0 10px alpha(#7aa2f7, 0.6),
+        0 1px 2px alpha(#000000, 0.5);
+    margin: 0 8px;
+}
+
+.clock-date {
+    color: alpha(#c0caf5, 0.7);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.clock-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    color: #bb9af7;
+    font-size: 16px;
+    font-weight: 600;
+    text-shadow:
+        0 0 10px alpha(#bb9af7, 0.9),
+        0 0 20px alpha(#bb9af7, 0.5);
+    margin: 0 4px;
+    animation: rune-shimmer 3s ease-in-out infinite;
+}
+
+/* === Power Button - Gateway to Ragnarok === */
+.power-button {
+    background: linear-gradient(145deg,
+        alpha(#f7768e, 0.15) 0%,
+        alpha(#13141c, 0.9) 100%);
+    border-radius: 8px;
+    padding: 4px 10px;
+    margin: 2px 4px;
+    border: 1px solid alpha(#f7768e, 0.35);
+    box-shadow:
+        0 0 12px alpha(#f7768e, 0.15),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+    transition: all 200ms ease;
+}
+
+.power-button:hover {
+    background: linear-gradient(145deg,
+        alpha(#f7768e, 0.35) 0%,
+        alpha(#f7768e, 0.15) 100%);
+    border-color: alpha(#f7768e, 0.65);
+    box-shadow:
+        0 0 20px alpha(#f7768e, 0.4),
+        0 0 40px alpha(#f7768e, 0.2);
+}
+
+.power-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f7768e;
+    text-shadow:
+        0 0 10px alpha(#f7768e, 0.8),
+        0 0 20px alpha(#f7768e, 0.4);
+}
+
+.power-button:hover .power-rune {
+    text-shadow:
+        0 0 14px alpha(#f7768e, 1),
+        0 0 28px alpha(#f7768e, 0.6);
+}
+
+/* === Power Menu - Halls of Helheim === */
+.power-menu {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#7aa2f7, 0.35);
+    border-radius: 14px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#7aa2f7, 0.5),
+        0 0 60px alpha(#7aa2f7, 0.1),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.power-menu-content {
+    padding: 6px;
+}
+
+.power-menu-item {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 3px 0;
+    transition: all 150ms ease;
+}
+
+.power-menu-item:hover {
+    background: linear-gradient(90deg,
+        alpha(#7aa2f7, 0.2) 0%,
+        alpha(#7aa2f7, 0.08) 100%);
+}
+
+.power-menu-item:active {
+    background: alpha(#7aa2f7, 0.3);
+}
+
+.power-menu-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #bb9af7;
+    text-shadow: 0 0 8px alpha(#bb9af7, 0.6);
+    min-width: 24px;
+}
+
+.power-menu-label {
+    color: #c0caf5;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.power-menu-separator {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        alpha(#7aa2f7, 0.3) 50%,
+        transparent 100%);
+    min-height: 1px;
+    margin: 8px 12px;
+}
+
+.power-menu-shutdown {
+    margin-top: 6px;
+}
+
+.power-menu-shutdown:hover {
+    background: linear-gradient(90deg,
+        alpha(#f7768e, 0.3) 0%,
+        alpha(#f7768e, 0.12) 100%);
+}
+
+.power-menu-shutdown .power-menu-rune {
+    color: #f7768e;
+    text-shadow: 0 0 8px alpha(#f7768e, 0.6);
+}
+
+/* === Separators - Fragments of the Bifrost === */
+separator {
+    background: linear-gradient(180deg,
+        transparent 0%,
+        alpha(#7aa2f7, 0.4) 50%,
+        transparent 100%);
+    min-width: 1px;
+    margin: 6px 8px;
+}
+
+/* === Tooltips - Whispers from Mimir's Well === */
+tooltip {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#7aa2f7, 0.35);
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow:
+        0 8px 24px alpha(#000000, 0.6),
+        0 0 1px alpha(#7aa2f7, 0.5);
+}
+
+tooltip label {
+    color: #c0caf5;
+    font-size: 12px;
+}
+
+/* === Generic Buttons === */
+button {
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 4px;
+    transition: all 150ms ease;
+}
+
+button:hover {
+    background-color: alpha(#7aa2f7, 0.15);
+}
+
+button:active {
+    background-color: alpha(#7aa2f7, 0.25);
+}
+
+/* === Sacred Animations - The Eternal Cycles === */
+@keyframes rune-pulse {
+    0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 8px currentColor;
+    }
+    50% {
+        opacity: 0.5;
+        text-shadow: 0 0 4px currentColor;
+    }
+}
+
+@keyframes rune-glow {
+    0%, 100% {
+        text-shadow:
+            0 0 8px currentColor,
+            0 0 16px alpha(currentColor, 0.5);
+    }
+    50% {
+        text-shadow:
+            0 0 12px currentColor,
+            0 0 24px alpha(currentColor, 0.7);
+    }
+}
+
+@keyframes rune-shimmer {
+    0%, 100% {
+        opacity: 0.9;
+        text-shadow:
+            0 0 10px alpha(#bb9af7, 0.8),
+            0 0 20px alpha(#bb9af7, 0.4);
+    }
+    50% {
+        opacity: 1;
+        text-shadow:
+            0 0 14px alpha(#bb9af7, 1),
+            0 0 28px alpha(#bb9af7, 0.6),
+            0 0 40px alpha(#7aa2f7, 0.3);
+    }
+}
+
+@keyframes bifrost-flow {
+    0% {
+        border-color: alpha(#7aa2f7, 0.4);
+    }
+    33% {
+        border-color: alpha(#bb9af7, 0.4);
+    }
+    66% {
+        border-color: alpha(#73daca, 0.4);
+    }
+    100% {
+        border-color: alpha(#7aa2f7, 0.4);
+    }
+}
+
+/* === Slider Popovers - Rune Control Panels === */
+.audio-popover,
+.brightness-popover {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#7aa2f7, 0.35);
+    border-radius: 14px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#7aa2f7, 0.5),
+        0 0 60px alpha(#7aa2f7, 0.1),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.audio-button,
+.brightness-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.slider-header-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #bb9af7;
+    text-shadow:
+        0 0 10px alpha(#bb9af7, 0.8),
+        0 0 20px alpha(#bb9af7, 0.4);
+}
+
+.slider-header-label {
+    color: #c0caf5;
+    font-size: 14px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px alpha(#000000, 0.5);
+}
+
+/* Audio slider - Cyan/Gjallarhorn theme */
+.audio-slider trough {
+    background: linear-gradient(90deg,
+        alpha(#7dcfff, 0.2) 0%,
+        alpha(#1a1b26, 0.8) 100%);
+    border-radius: 6px;
+    min-height: 8px;
+    border: 1px solid alpha(#7dcfff, 0.3);
+}
+
+.audio-slider highlight {
+    background: linear-gradient(90deg,
+        #7dcfff 0%,
+        #73daca 100%);
+    border-radius: 6px;
+    box-shadow: 0 0 12px alpha(#7dcfff, 0.5);
+}
+
+.audio-slider slider {
+    background: linear-gradient(180deg,
+        #c0caf5 0%,
+        #7dcfff 100%);
+    border-radius: 50%;
+    min-width: 16px;
+    min-height: 16px;
+    border: 2px solid alpha(#ffffff, 0.3);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        0 0 8px alpha(#7dcfff, 0.4);
+}
+
+.audio-slider slider:hover {
+    background: linear-gradient(180deg,
+        #ffffff 0%,
+        #7dcfff 100%);
+    box-shadow:
+        0 2px 12px alpha(#000000, 0.5),
+        0 0 16px alpha(#7dcfff, 0.6);
+}
+
+.audio-slider value {
+    color: #7dcfff;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-shadow: 0 0 8px alpha(#7dcfff, 0.5);
+    min-width: 36px;
+}
+
+/* Brightness slider - Golden/Sunlight theme */
+.brightness-slider trough {
+    background: linear-gradient(90deg,
+        alpha(#e0af68, 0.2) 0%,
+        alpha(#1a1b26, 0.8) 100%);
+    border-radius: 6px;
+    min-height: 8px;
+    border: 1px solid alpha(#e0af68, 0.3);
+}
+
+.brightness-slider highlight {
+    background: linear-gradient(90deg,
+        #e0af68 0%,
+        #ffc777 100%);
+    border-radius: 6px;
+    box-shadow: 0 0 12px alpha(#e0af68, 0.5);
+}
+
+.brightness-slider slider {
+    background: linear-gradient(180deg,
+        #ffc777 0%,
+        #e0af68 100%);
+    border-radius: 50%;
+    min-width: 16px;
+    min-height: 16px;
+    border: 2px solid alpha(#ffffff, 0.3);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        0 0 8px alpha(#e0af68, 0.4);
+}
+
+.brightness-slider slider:hover {
+    background: linear-gradient(180deg,
+        #ffffff 0%,
+        #ffc777 100%);
+    box-shadow:
+        0 2px 12px alpha(#000000, 0.5),
+        0 0 16px alpha(#e0af68, 0.6);
+}
+
+.brightness-slider value {
+    color: #e0af68;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-shadow: 0 0 8px alpha(#e0af68, 0.5);
+    min-width: 36px;
+}
+
+/* Mute button styling */
+.audio-mute-btn {
+    background: linear-gradient(180deg,
+        alpha(#2f3549, 0.6) 0%,
+        alpha(#1a1b26, 0.8) 100%);
+    border: 1px solid alpha(#7aa2f7, 0.25);
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin-top: 8px;
+    transition: all 150ms ease;
+}
+
+.audio-mute-btn:hover {
+    background: linear-gradient(180deg,
+        alpha(#3b4261, 0.7) 0%,
+        alpha(#2f3549, 0.9) 100%);
+    border-color: alpha(#7aa2f7, 0.45);
+}
+
+.audio-mute-btn.muted {
+    border-color: alpha(#f7768e, 0.45);
+    background: linear-gradient(180deg,
+        alpha(#f7768e, 0.15) 0%,
+        alpha(#1a1b26, 0.8) 100%);
+}
+
+.mute-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 14px;
+    color: #7dcfff;
+    text-shadow: 0 0 8px alpha(#7dcfff, 0.6);
+}
+
+.audio-mute-btn.muted .mute-rune {
+    color: #f7768e;
+    text-shadow: 0 0 8px alpha(#f7768e, 0.6);
+}
+
+.mute-label {
+    color: #c0caf5;
+    font-size: 12px;
+    font-weight: 500;
+}

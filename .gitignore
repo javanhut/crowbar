@@ -1,0 +1,8 @@
+# Planning directories
+.planning/
+
+# Claude AI
+CLAUDE.md
+
+# Binary
+crowbar
