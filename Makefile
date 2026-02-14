@@ -9,7 +9,7 @@ PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 DATADIR ?= $(PREFIX)/share/$(BINARY_NAME)
 
-.PHONY: all build clean install uninstall user-install user-uninstall run help debug test
+.PHONY: all build clean install uninstall reinstall user-install user-uninstall user-reinstall run help debug test
 
 all: build
 
@@ -55,6 +55,9 @@ uninstall:
 	@echo "Uninstall complete!"
 	@echo "Note: User config at ~/.config/crowbar/ was not removed"
 
+## reinstall: Uninstall and reinstall crowbar system-wide (release build, requires sudo)
+reinstall: uninstall clean build install
+
 ## user-install: Install to user's local bin (~/.local/bin)
 user-install: build
 	@echo "Installing $(BINARY_NAME) to ~/.local/bin..."
@@ -76,6 +79,9 @@ user-uninstall:
 	@echo ""
 	@echo "User uninstall complete!"
 
+## user-reinstall: Uninstall and reinstall to user's local bin (release build)
+user-reinstall: user-uninstall clean build user-install
+
 ## run: Build and run locally (debug mode)
 run: debug
 	./target/debug/$(BINARY_NAME)
@@ -94,4 +100,6 @@ help:
 	@echo "  make debug            # Build debug binary"
 	@echo "  make test             # Run tests"
 	@echo "  sudo make install     # Install system-wide"
+	@echo "  sudo make reinstall   # Clean rebuild and reinstall system-wide"
 	@echo "  make user-install     # Install to ~/.local/bin (no sudo)"
+	@echo "  make user-reinstall   # Clean rebuild and reinstall to ~/.local/bin"
