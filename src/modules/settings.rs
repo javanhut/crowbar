@@ -240,9 +240,20 @@ impl Settings {
             let thickness = spin.value() as i32;
             for win in windows_height.borrow().iter() {
                 if is_vertical {
+                    win.set_size_request(thickness, -1);
                     win.set_default_size(thickness, -1);
                 } else {
+                    win.set_size_request(-1, thickness);
                     win.set_default_size(-1, thickness);
+                }
+                if let Some(child) = win.child() {
+                    if let Ok(container) = child.downcast::<gtk4::Box>() {
+                        if is_vertical {
+                            container.set_size_request(thickness, -1);
+                        } else {
+                            container.set_size_request(-1, thickness);
+                        }
+                    }
                 }
             }
         });

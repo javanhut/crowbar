@@ -10,7 +10,6 @@ use std::rc::Rc;
 pub struct Bar {
     pub window: gtk4::Window,
     workspaces: Option<Rc<modules::workspaces::Workspaces>>,
-    window_title: Option<Rc<modules::window_title::WindowTitle>>,
     app_tracker: Option<Rc<modules::app_tracker::AppTracker>>,
     media: Option<modules::media::Media>,
     _app_finder: Option<modules::app_finder::AppFinder>,
@@ -60,6 +59,11 @@ impl Bar {
             gtk4::Orientation::Horizontal
         };
         let container = gtk4::Box::new(orientation, 4);
+        if is_vertical {
+            container.set_size_request(config.bar.height, -1);
+        } else {
+            container.set_size_request(-1, config.bar.height);
+        }
         container.add_css_class("bar-container");
         if is_vertical {
             container.add_css_class("bar-vertical");
@@ -74,7 +78,6 @@ impl Bar {
         window.set_child(Some(&container));
 
         let mut workspaces = None;
-        let mut window_title = None;
         let mut app_tracker = None;
         let mut media = None;
         let mut app_finder = None;
@@ -101,13 +104,6 @@ impl Bar {
                 "separator" => {
                     let sep = gtk4::Separator::new(gtk4::Orientation::Vertical);
                     container.append(&sep);
-                }
-                "window_title" => {
-                    if let Some(ref c) = client {
-                        let wt = Rc::new(modules::window_title::WindowTitle::new(c.clone()));
-                        container.append(&wt.widget);
-                        window_title = Some(wt);
-                    }
                 }
                 "app_tracker" => {
                     if let Some(ref c) = client {
@@ -207,7 +203,6 @@ impl Bar {
         Self {
             window,
             workspaces,
-            window_title,
             app_tracker,
             media,
             _app_finder: app_finder,
@@ -230,7 +225,7 @@ impl Bar {
             audio.setup_events();
         }
 
-        if self.workspaces.is_none() && self.window_title.is_none() {
+        if self.workspaces.is_none() {
             return;
         }
 
@@ -251,7 +246,6 @@ impl Bar {
 
         // Clone Rc handles for safe sharing with the async event handler
         let workspaces = self.workspaces.clone();
-        let window_title = self.window_title.clone();
         let app_tracker = self.app_tracker.clone();
 
         glib::spawn_future_local(async move {
@@ -264,15 +258,8 @@ impl Bar {
                             ws.refresh();
                         }
                     }
-                    HyprEvent::ActiveWindow(_) | HyprEvent::WindowTitle(_) => {
-                        if let Some(ref wt) = window_title {
-                            wt.refresh();
-                        }
-                    }
+                    HyprEvent::ActiveWindow(_) | HyprEvent::WindowTitle(_) => {}
                     HyprEvent::CloseWindow(_) => {
-                        if let Some(ref wt) = window_title {
-                            wt.refresh();
-                        }
                         if let Some(ref at) = app_tracker {
                             at.refresh();
                         }
@@ -330,6 +317,14 @@ impl Bar {
 pub fn apply_position_anchors(window: &gtk4::Window, position: &str, thickness: i32) {
     let is_vertical = position == "left" || position == "right";
 
+    // Hide window to prevent intermediate Wayland surface commits from reaching
+    // Hyprland with inconsistent anchor/size combinations, which causes a SIGABRT
+    // in CReservedArea::CReservedArea() during arrangeLayersForMonitor().
+    let was_visible = window.is_visible();
+    if was_visible {
+        window.set_visible(false);
+    }
+
     // Set anchors
     match position {
         "bottom" => {
@@ -359,8 +354,9 @@ pub fn apply_position_anchors(window: &gtk4::Window, position: &str, thickness: 
         }
     }
 
-    // Set size request: thickness is height for top/bottom, width for left/right
-    // Using set_size_request instead of set_default_size so it works on already-visible windows
+    // Clear previous size constraints before setting new ones to avoid stale
+    // constraints from the previous orientation lingering on the wrong axis.
+    window.set_size_request(-1, -1);
     if is_vertical {
         window.set_size_request(thickness, -1);
         window.set_default_size(thickness, -1);
@@ -378,6 +374,15 @@ pub fn apply_position_anchors(window: &gtk4::Window, position: &str, thickness: 
                 gtk4::Orientation::Horizontal
             };
             container.set_orientation(new_orientation);
+
+            // Enforce thickness on the container so child widgets don't push
+            // the bar beyond the configured thickness in vertical mode.
+            container.set_size_request(-1, -1);
+            if is_vertical {
+                container.set_size_request(thickness, -1);
+            } else {
+                container.set_size_request(-1, thickness);
+            }
 
             // Toggle vertical/horizontal CSS classes for styling
             if is_vertical {
@@ -405,6 +410,11 @@ pub fn apply_position_anchors(window: &gtk4::Window, position: &str, thickness: 
                 child_iter = widget.next_sibling();
             }
         }
+    }
+
+    // Show window again after all properties are set atomically.
+    if was_visible {
+        window.set_visible(true);
     }
 }
 

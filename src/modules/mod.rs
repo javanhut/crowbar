@@ -10,5 +10,4 @@ pub mod power;
 pub mod power_menu;
 pub mod settings;
 pub mod systray;
-pub mod window_title;
 pub mod workspaces;

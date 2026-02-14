@@ -96,7 +96,6 @@ impl Default for ModulesConfig {
             left: vec![
                 "workspaces".into(),
                 "separator".into(),
-                "window_title".into(),
                 "app_tracker".into(),
                 "media".into(),
                 "app_finder".into(),
