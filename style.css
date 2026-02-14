@@ -849,9 +849,100 @@ button:active {
 }
 
 .mute-label {
-    color: #c0caf5;
+    color: @starlight;
     font-size: 12px;
     font-weight: 500;
+}
+
+/* Audio device section separator */
+.audio-separator {
+    background: alpha(@frost_light, 0.3);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+/* Expandable device section header button */
+.audio-device-header {
+    background: alpha(@frost_dark, 0.5);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 150ms ease;
+}
+
+.audio-device-header:hover {
+    background: alpha(@frost_mid, 0.7);
+    border-color: alpha(@bifrost_cyan, 0.4);
+}
+
+.audio-device-header.expanded {
+    background: alpha(@frost_mid, 0.6);
+    border-color: alpha(@bifrost_cyan, 0.5);
+    border-radius: 8px 8px 4px 4px;
+}
+
+.audio-device-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 14px;
+    color: @bifrost_cyan;
+    text-shadow: 0 0 8px alpha(@bifrost_cyan, 0.5);
+}
+
+.audio-device-title {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.audio-device-arrow {
+    color: @moonlight;
+    font-size: 10px;
+    transition: all 200ms ease;
+}
+
+.audio-device-header:hover .audio-device-arrow {
+    color: @bifrost_cyan;
+}
+
+/* Device list container */
+.audio-device-list {
+    padding: 4px 0;
+}
+
+/* Individual device button */
+.audio-device-btn {
+    background: alpha(@frost_dark, 0.4);
+    border: 1px solid alpha(@frost_light, 0.15);
+    border-radius: 6px;
+    padding: 6px 12px;
+    transition: all 150ms ease;
+}
+
+.audio-device-btn label {
+    color: @moonlight;
+    font-size: 11px;
+}
+
+.audio-device-btn:hover {
+    background: alpha(@frost_mid, 0.6);
+    border-color: alpha(@bifrost_blue, 0.4);
+}
+
+.audio-device-btn:hover label {
+    color: @starlight;
+}
+
+.audio-device-btn.active {
+    background: linear-gradient(135deg,
+        alpha(@bifrost_blue, 0.25) 0%,
+        alpha(@bifrost_cyan, 0.15) 100%);
+    border-color: @bifrost_cyan;
+    box-shadow: 0 0 8px alpha(@bifrost_cyan, 0.2);
+}
+
+.audio-device-btn.active label {
+    color: @bifrost_cyan;
+    font-weight: 600;
 }
 
 /* === App Tracker - Valhalla's Warriors === */

@@ -9,6 +9,8 @@ pub struct Audio {
     label: gtk4::Label,
     slider: gtk4::Scale,
     mute_btn: gtk4::Button,
+    sink_list: gtk4::Box,
+    source_list: gtk4::Box,
     available: bool,
     updating: Rc<Cell<bool>>,
     event_listener: Option<audio::AudioEventListener>,
@@ -104,7 +106,40 @@ impl Audio {
         });
         popover_content.append(&mute_btn);
 
+        // Separator before device sections
+        let sep1 = gtk4::Separator::new(gtk4::Orientation::Horizontal);
+        sep1.add_css_class("audio-separator");
+        popover_content.append(&sep1);
+
+        // Output devices (sinks) - expandable section
+        let sink_list = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+        sink_list.add_css_class("audio-device-list");
+        let sink_revealer = create_device_section(
+            "\u{16A0}", // ᚠ Fehu
+            "Output Devices",
+            &sink_list,
+        );
+        popover_content.append(&sink_revealer);
+
+        // Input devices (sources) - expandable section
+        let source_list = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+        source_list.add_css_class("audio-device-list");
+        let source_revealer = create_device_section(
+            "\u{16D7}", // ᛗ Mannaz
+            "Input Devices",
+            &source_list,
+        );
+        popover_content.append(&source_revealer);
+
         popover.set_child(Some(&popover_content));
+
+        // Rebuild device lists when popover opens
+        let sink_list_ref = sink_list.clone();
+        let source_list_ref = source_list.clone();
+        popover.connect_show(move |_| {
+            rebuild_device_lists(&sink_list_ref, &source_list_ref);
+        });
+
         menu_button.set_popover(Some(&popover));
 
         widget.append(&menu_button);
@@ -121,6 +156,8 @@ impl Audio {
             label,
             slider,
             mute_btn,
+            sink_list,
+            source_list,
             available,
             updating,
             event_listener: None,
@@ -143,12 +180,15 @@ impl Audio {
         let slider = self.slider.clone();
         let mute_btn = self.mute_btn.clone();
         let updating = self.updating.clone();
+        let sink_list = self.sink_list.clone();
+        let source_list = self.source_list.clone();
 
         let (sender, receiver) = async_channel::unbounded::<()>();
 
         glib::spawn_future_local(async move {
             while receiver.recv().await.is_ok() {
                 refresh_audio(&label, &widget, &slider, &mute_btn, &updating);
+                rebuild_device_lists(&sink_list, &source_list);
             }
         });
 
@@ -165,6 +205,7 @@ impl Audio {
             &self.mute_btn,
             &self.updating,
         );
+        rebuild_device_lists(&self.sink_list, &self.source_list);
     }
 
     pub fn stop(&self) {
@@ -172,6 +213,70 @@ impl Audio {
             listener.stop();
         }
     }
+}
+
+/// Creates an expandable device section with an arrow toggle button and a revealer.
+fn create_device_section(
+    rune_char: &str,
+    title: &str,
+    device_list: &gtk4::Box,
+) -> gtk4::Box {
+    let container = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+
+    // Header button that toggles the reveal
+    let header_btn = gtk4::Button::new();
+    header_btn.add_css_class("audio-device-header");
+
+    let header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+
+    let rune_label = gtk4::Label::new(Some(rune_char));
+    rune_label.add_css_class("audio-device-rune");
+    header_box.append(&rune_label);
+
+    let title_label = gtk4::Label::new(Some(title));
+    title_label.add_css_class("audio-device-title");
+    title_label.set_hexpand(true);
+    title_label.set_halign(gtk4::Align::Start);
+    header_box.append(&title_label);
+
+    let arrow = gtk4::Label::new(Some("\u{25B6}")); // ▶ right-pointing arrow
+    arrow.add_css_class("audio-device-arrow");
+    header_box.append(&arrow);
+
+    header_btn.set_child(Some(&header_box));
+    container.append(&header_btn);
+
+    // Revealer for smooth expand/collapse
+    let revealer = gtk4::Revealer::new();
+    revealer.set_transition_type(gtk4::RevealerTransitionType::SlideDown);
+    revealer.set_transition_duration(200);
+    revealer.set_reveal_child(false);
+
+    let scroll = gtk4::ScrolledWindow::new();
+    scroll.set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Automatic);
+    scroll.set_max_content_height(150);
+    scroll.set_propagate_natural_height(true);
+    scroll.set_child(Some(device_list));
+
+    revealer.set_child(Some(&scroll));
+    container.append(&revealer);
+
+    // Toggle on click
+    let revealer_ref = revealer.clone();
+    let arrow_ref = arrow.clone();
+    header_btn.connect_clicked(move |btn| {
+        let revealed = revealer_ref.reveals_child();
+        revealer_ref.set_reveal_child(!revealed);
+        if revealed {
+            arrow_ref.set_text("\u{25B6}"); // ▶ collapsed
+            btn.remove_css_class("expanded");
+        } else {
+            arrow_ref.set_text("\u{25BC}"); // ▼ expanded
+            btn.add_css_class("expanded");
+        }
+    });
+
+    container
 }
 
 fn refresh_audio(
@@ -209,4 +314,66 @@ fn refresh_audio(
         "Volume: {}%\nClick to adjust",
         info.volume
     )));
+}
+
+fn rebuild_device_lists(sink_list: &gtk4::Box, source_list: &gtk4::Box) {
+    // Clear existing children
+    while let Some(child) = sink_list.first_child() {
+        sink_list.remove(&child);
+    }
+    while let Some(child) = source_list.first_child() {
+        source_list.remove(&child);
+    }
+
+    // Populate sinks
+    let sinks = audio::list_sinks();
+    for device in &sinks {
+        let btn = gtk4::Button::new();
+        btn.add_css_class("audio-device-btn");
+
+        let label = gtk4::Label::new(Some(&device.description));
+        label.set_halign(gtk4::Align::Start);
+        label.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+        btn.set_child(Some(&label));
+
+        if device.is_default {
+            btn.add_css_class("active");
+        }
+
+        let name = device.name.clone();
+        let sink_list_ref = sink_list.clone();
+        let source_list_ref = source_list.clone();
+        btn.connect_clicked(move |_| {
+            audio::set_default_sink(&name);
+            rebuild_device_lists(&sink_list_ref, &source_list_ref);
+        });
+
+        sink_list.append(&btn);
+    }
+
+    // Populate sources
+    let sources = audio::list_sources();
+    for device in &sources {
+        let btn = gtk4::Button::new();
+        btn.add_css_class("audio-device-btn");
+
+        let label = gtk4::Label::new(Some(&device.description));
+        label.set_halign(gtk4::Align::Start);
+        label.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+        btn.set_child(Some(&label));
+
+        if device.is_default {
+            btn.add_css_class("active");
+        }
+
+        let name = device.name.clone();
+        let sink_list_ref = sink_list.clone();
+        let source_list_ref = source_list.clone();
+        btn.connect_clicked(move |_| {
+            audio::set_default_source(&name);
+            rebuild_device_lists(&sink_list_ref, &source_list_ref);
+        });
+
+        source_list.append(&btn);
+    }
 }
