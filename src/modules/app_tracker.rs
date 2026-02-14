@@ -2,7 +2,7 @@ use crate::hyprland::HyprlandClient;
 use gtk4::gdk;
 use gtk4::glib;
 use gtk4::prelude::*;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
 
@@ -24,6 +24,7 @@ pub struct AppTracker {
     client: Rc<HyprlandClient>,
     apps: Rc<RefCell<HashMap<String, AppInfo>>>,
     buttons: Rc<RefCell<HashMap<String, gtk4::Button>>>,
+    menu_open: Rc<Cell<bool>>,
     source_id: RefCell<Option<glib::SourceId>>,
 }
 
@@ -40,12 +41,14 @@ impl AppTracker {
 
         let apps = Rc::new(RefCell::new(HashMap::new()));
         let buttons = Rc::new(RefCell::new(HashMap::new()));
+        let menu_open = Rc::new(Cell::new(false));
 
         let tracker = Self {
             widget,
             client,
             apps,
             buttons,
+            menu_open,
             source_id: RefCell::new(None),
         };
 
@@ -59,15 +62,16 @@ impl AppTracker {
         let widget = self.widget.clone();
         let apps = self.apps.clone();
         let buttons = self.buttons.clone();
+        let menu_open = self.menu_open.clone();
 
         *self.source_id.borrow_mut() = Some(glib::timeout_add_seconds_local(interval_secs, move || {
-            do_refresh(&client, &widget, &apps, &buttons);
+            do_refresh(&client, &widget, &apps, &buttons, &menu_open);
             glib::ControlFlow::Continue
         }));
     }
 
     pub fn refresh(&self) {
-        do_refresh(&self.client, &self.widget, &self.apps, &self.buttons);
+        do_refresh(&self.client, &self.widget, &self.apps, &self.buttons, &self.menu_open);
     }
 
     pub fn stop(&self) {
@@ -82,7 +86,13 @@ fn do_refresh(
     widget: &gtk4::Box,
     apps_cell: &Rc<RefCell<HashMap<String, AppInfo>>>,
     buttons_cell: &Rc<RefCell<HashMap<String, gtk4::Button>>>,
+    menu_open: &Rc<Cell<bool>>,
 ) {
+    // Skip rebuild while a context menu is open to prevent destroying its parent
+    if menu_open.get() {
+        return;
+    }
+
     let Ok(clients) = client.clients() else {
         return;
     };
@@ -142,7 +152,7 @@ fn do_refresh(
 
     for class in &classes {
         let app = &new_apps[class];
-        let btn = create_app_button(client, app, apps_cell, widget);
+        let btn = create_app_button(client, app, apps_cell, widget, menu_open);
         buttons_cell.borrow_mut().insert(class.clone(), btn.clone());
         widget.append(&btn);
     }
@@ -155,6 +165,7 @@ fn create_app_button(
     app: &AppInfo,
     apps_cell: &Rc<RefCell<HashMap<String, AppInfo>>>,
     tracker_widget: &gtk4::Box,
+    menu_open: &Rc<Cell<bool>>,
 ) -> gtk4::Button {
     let btn = gtk4::Button::new();
     btn.add_css_class("app-button");
@@ -213,8 +224,9 @@ fn create_app_button(
     let apps_ref = apps_cell.clone();
     let btn_ref = btn.clone();
     let tracker_ref = tracker_widget.clone();
+    let menu_flag = menu_open.clone();
     gesture.connect_pressed(move |_, _n, _x, _y| {
-        show_context_menu(&client_clone, &class, &apps_ref, &btn_ref, &tracker_ref);
+        show_context_menu(&client_clone, &class, &apps_ref, &btn_ref, &tracker_ref, &menu_flag);
     });
     btn.add_controller(gesture);
 
@@ -302,9 +314,13 @@ fn show_context_menu(
     apps_cell: &Rc<RefCell<HashMap<String, AppInfo>>>,
     btn: &gtk4::Button,
     _tracker_widget: &gtk4::Box,
+    menu_open: &Rc<Cell<bool>>,
 ) {
     let apps = apps_cell.borrow();
     let Some(app) = apps.get(class) else { return };
+
+    // Block refreshes while the menu is open
+    menu_open.set(true);
 
     let popover = gtk4::Popover::new();
     popover.add_css_class("app-menu");
@@ -421,6 +437,14 @@ fn show_context_menu(
     content.append(&new_btn);
 
     popover.set_child(Some(&content));
+
+    // Unblock refreshes and clean up when the popover closes
+    let menu_flag = menu_open.clone();
+    popover.connect_closed(move |p| {
+        menu_flag.set(false);
+        p.unparent();
+    });
+
     popover.popup();
 }
 

@@ -247,20 +247,49 @@ impl Settings {
         pos_label.add_css_class("settings-module-name");
         pos_row.append(&pos_label);
 
-        let pos_dropdown = gtk4::DropDown::from_strings(&["Top", "Bottom"]);
-        pos_dropdown.add_css_class("settings-dropdown");
-        let current_pos = if config.borrow().bar.position == "bottom" { 1 } else { 0 };
-        pos_dropdown.set_selected(current_pos);
+        let pos_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
 
-        let config_pos = config.clone();
-        pos_dropdown.connect_selected_notify(move |dd| {
-            let mut cfg = config_pos.borrow_mut();
-            cfg.bar.position = if dd.selected() == 1 { "bottom".into() } else { "top".into() };
-            if let Err(e) = cfg.save() {
-                eprintln!("Failed to save config: {e}");
+        let positions = [("Top", "top"), ("Bottom", "bottom")];
+        let pos_buttons: Rc<Vec<gtk4::Button>> = Rc::new(
+            positions
+                .iter()
+                .map(|(label, _)| {
+                    let btn = gtk4::Button::with_label(label);
+                    btn.add_css_class("settings-theme-btn");
+                    btn
+                })
+                .collect(),
+        );
+
+        {
+            let current = &config.borrow().bar.position;
+            for (i, (_, pos)) in positions.iter().enumerate() {
+                if current == pos {
+                    pos_buttons[i].add_css_class("active");
+                }
             }
-        });
-        pos_row.append(&pos_dropdown);
+        }
+
+        for (i, btn) in pos_buttons.iter().enumerate() {
+            let pos_value = positions[i].1.to_string();
+            let config_pos = config.clone();
+            let buttons_clone = pos_buttons.clone();
+            btn.connect_clicked(move |_| {
+                for b in buttons_clone.iter() {
+                    b.remove_css_class("active");
+                }
+                buttons_clone[i].add_css_class("active");
+
+                let mut cfg = config_pos.borrow_mut();
+                cfg.bar.position = pos_value.clone();
+                if let Err(e) = cfg.save() {
+                    eprintln!("Failed to save config: {e}");
+                }
+            });
+            pos_box.append(btn);
+        }
+
+        pos_row.append(&pos_box);
         popover_content.append(&pos_row);
 
         // Restart note
