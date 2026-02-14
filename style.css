@@ -77,6 +77,36 @@ popover > contents {
     padding: 3px 8px;
 }
 
+/* --- Vertical bar overrides (left/right position) --- */
+.bar-container.bar-vertical {
+    padding: 8px 3px;
+}
+
+.bar-container.bar-top {
+    border-bottom: 2px solid alpha(#7aa2f7, 0.4);
+    border-right: none;
+    border-left: none;
+}
+
+.bar-container.bar-bottom {
+    border-bottom: none;
+    border-top: 2px solid alpha(#7aa2f7, 0.4);
+    border-right: none;
+    border-left: none;
+}
+
+.bar-container.bar-left {
+    border-bottom: none;
+    border-right: 2px solid alpha(#7aa2f7, 0.4);
+    border-left: none;
+}
+
+.bar-container.bar-right {
+    border-bottom: none;
+    border-left: 2px solid alpha(#7aa2f7, 0.4);
+    border-right: none;
+}
+
 /* === Elder Futhark Rune Styling === */
 .module-rune,
 .clock-rune,
@@ -453,6 +483,186 @@ popover > contents {
         0 0 20px alpha(#bb9af7, 0.5);
     margin: 0 4px;
     animation: rune-shimmer 3s ease-in-out infinite;
+}
+
+/* === Clock Popover - The Norns' Weaving === */
+.clock-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.clock-popover {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#bb9af7, 0.35);
+    border-radius: 14px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#bb9af7, 0.5),
+        0 0 60px alpha(#bb9af7, 0.1),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.clock-time-large {
+    color: @starlight;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 28px;
+    font-weight: 700;
+    text-shadow:
+        0 0 12px alpha(#bb9af7, 0.6),
+        0 0 24px alpha(#bb9af7, 0.3);
+    padding: 4px 0;
+}
+
+.clock-date-full {
+    color: @starlight;
+    font-size: 13px;
+    font-weight: 500;
+    padding-bottom: 4px;
+}
+
+.clock-separator {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        alpha(#bb9af7, 0.3) 50%,
+        transparent 100%);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+.clock-timezone-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.clock-timezone-name {
+    color: @bifrost_purple;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 0 8px alpha(@bifrost_purple, 0.4);
+}
+
+.clock-timezone-offset {
+    color: @moonlight;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.clock-timezone-label {
+    color: @moonlight;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* Calendar theming */
+.clock-calendar {
+    background: alpha(@void_dark, 0.9);
+    border: 1px solid alpha(@bifrost_purple, 0.2);
+    border-radius: 8px;
+    color: @starlight;
+}
+
+.clock-calendar header {
+    background: transparent;
+    color: @starlight;
+}
+
+.clock-calendar header button {
+    color: @bifrost_purple;
+}
+
+.clock-calendar header button:hover {
+    color: @bifrost_cyan;
+    background: alpha(@bifrost_purple, 0.15);
+}
+
+.clock-calendar :selected {
+    background: alpha(@bifrost_purple, 0.4);
+    color: @starlight;
+    border-radius: 50%;
+}
+
+.clock-calendar .day {
+    color: @starlight;
+}
+
+.clock-calendar .other-month {
+    color: alpha(@moonlight, 0.3);
+}
+
+.clock-calendar .today {
+    background: alpha(@bifrost_purple, 0.25);
+    border-radius: 50%;
+    font-weight: 700;
+}
+
+/* DST Section */
+.clock-dst-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.clock-dst-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: @mead_gold;
+    text-shadow:
+        0 0 8px alpha(@mead_gold, 0.8),
+        0 0 16px alpha(@mead_gold, 0.4);
+}
+
+.clock-dst-label {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.clock-dst-status {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.clock-dst-status.dst-active {
+    color: @bifrost_teal;
+}
+
+.clock-dst-status.dst-inactive {
+    color: @moonlight;
+}
+
+.clock-dst-switch slider {
+    background: linear-gradient(180deg,
+        #3b4261 0%,
+        #2f3549 100%);
+    border-radius: 12px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.clock-dst-switch:checked slider {
+    background: linear-gradient(180deg,
+        @bifrost_purple 0%,
+        @bifrost_blue 100%);
+}
+
+.clock-dst-switch trough {
+    background: alpha(#1a1b26, 0.8);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 14px;
+    min-width: 48px;
+    min-height: 24px;
+}
+
+.clock-dst-switch:checked trough {
+    background: alpha(@bifrost_purple, 0.2);
+    border-color: alpha(@bifrost_purple, 0.4);
 }
 
 /* === Power Button - Gateway to Ragnarok === */
@@ -852,6 +1062,226 @@ button:active {
     color: @starlight;
     font-size: 12px;
     font-weight: 500;
+}
+
+/* === Power Popover - Nidavellir's Forge === */
+.power-popover {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#7aa2f7, 0.35);
+    border-radius: 14px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#7aa2f7, 0.5),
+        0 0 60px alpha(#7aa2f7, 0.1),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.power-module-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.power-graph {
+    background: alpha(@void_deep, 0.9);
+    border: 1px solid alpha(@bifrost_blue, 0.3);
+    border-radius: 8px;
+}
+
+.power-battery-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.power-battery-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: @leaf_green;
+    text-shadow: 0 0 8px alpha(@leaf_green, 0.6);
+}
+
+.power-battery-title {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.power-battery-status {
+    color: @starlight;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.power-battery-detail {
+    color: @moonlight;
+    font-size: 11px;
+}
+
+.power-battery-watts {
+    color: @bifrost_cyan;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 13px;
+    font-weight: 600;
+    text-shadow: 0 0 8px alpha(@bifrost_cyan, 0.4);
+}
+
+.power-separator {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        alpha(@bifrost_blue, 0.3) 50%,
+        transparent 100%);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+.power-profile-label {
+    color: @mead_gold;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.power-info-footer {
+    color: @moonlight;
+    font-size: 11px;
+    font-style: italic;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+/* === Night Mode - Nott's Veil === */
+.night-mode-header {
+    background: alpha(@frost_dark, 0.5);
+    border: 1px solid alpha(@fire_orange, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 150ms ease;
+}
+
+.night-mode-header:hover {
+    background: alpha(@frost_mid, 0.7);
+    border-color: alpha(@fire_orange, 0.4);
+}
+
+.night-mode-header.expanded {
+    background: alpha(@frost_mid, 0.6);
+    border-color: alpha(@fire_orange, 0.5);
+    border-radius: 8px 8px 4px 4px;
+}
+
+.night-mode-header-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: @fire_orange;
+    text-shadow: 0 0 8px alpha(@fire_orange, 0.6);
+}
+
+.night-mode-header-title {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.night-mode-arrow {
+    color: @moonlight;
+    font-size: 10px;
+    transition: all 200ms ease;
+}
+
+.night-mode-header:hover .night-mode-arrow {
+    color: @fire_orange;
+}
+
+.night-mode-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: @fire_orange;
+    text-shadow: 0 0 8px alpha(@fire_orange, 0.5);
+}
+
+.night-mode-label {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.night-mode-switch slider {
+    background: linear-gradient(180deg,
+        #3b4261 0%,
+        #2f3549 100%);
+    border-radius: 12px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.night-mode-switch:checked slider {
+    background: linear-gradient(180deg,
+        @fire_orange 0%,
+        @mead_gold 100%);
+}
+
+.night-mode-switch trough {
+    background: alpha(#1a1b26, 0.8);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 14px;
+    min-width: 48px;
+    min-height: 24px;
+}
+
+.night-mode-switch:checked trough {
+    background: alpha(@fire_orange, 0.2);
+    border-color: alpha(@fire_orange, 0.4);
+}
+
+.night-temp-slider trough {
+    background: linear-gradient(90deg,
+        alpha(@fire_orange, 0.3) 0%,
+        alpha(@bifrost_blue, 0.2) 100%);
+    border-radius: 6px;
+    min-height: 8px;
+    border: 1px solid alpha(@fire_orange, 0.3);
+}
+
+.night-temp-slider highlight {
+    background: linear-gradient(90deg,
+        @fire_orange 0%,
+        @mead_gold 100%);
+    border-radius: 6px;
+    box-shadow: 0 0 12px alpha(@fire_orange, 0.5);
+}
+
+.night-temp-slider slider {
+    background: linear-gradient(180deg,
+        @sunlight 0%,
+        @fire_orange 100%);
+    border-radius: 50%;
+    min-width: 16px;
+    min-height: 16px;
+    border: 2px solid alpha(#ffffff, 0.3);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        0 0 8px alpha(@fire_orange, 0.4);
+}
+
+.night-temp-slider slider:hover {
+    background: linear-gradient(180deg,
+        #ffffff 0%,
+        @sunlight 100%);
+    box-shadow:
+        0 2px 12px alpha(#000000, 0.5),
+        0 0 16px alpha(@fire_orange, 0.6);
+}
+
+.night-temp-value {
+    color: @fire_orange;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-shadow: 0 0 6px alpha(@fire_orange, 0.4);
 }
 
 /* Audio device section separator */

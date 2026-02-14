@@ -13,6 +13,13 @@ pub struct BrightnessInfo {
     pub available: bool,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum NightModeBackend {
+    Wlsunset,
+    Gammastep,
+    None,
+}
+
 fn read_sysfs(path: &Path) -> Option<String> {
     fs::read_to_string(path).ok().map(|s| s.trim().to_string())
 }
@@ -60,4 +67,82 @@ pub fn set_brightness(_device: &str, percent: i32) {
     let _ = Command::new("brightnessctl")
         .args(["set", &format!("{percent}%")])
         .status();
+}
+
+pub fn detect_night_backend() -> NightModeBackend {
+    if Command::new("which")
+        .arg("wlsunset")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+    {
+        return NightModeBackend::Wlsunset;
+    }
+
+    if Command::new("which")
+        .arg("gammastep")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+    {
+        return NightModeBackend::Gammastep;
+    }
+
+    NightModeBackend::None
+}
+
+pub fn is_night_mode_active() -> bool {
+    Command::new("pgrep")
+        .args(["-x", "wlsunset"])
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+        || Command::new("pgrep")
+            .args(["-x", "gammastep"])
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false)
+}
+
+pub fn start_night_mode(temperature: i32) -> Result<(), String> {
+    // Kill any existing instances first
+    stop_night_mode();
+
+    let backend = detect_night_backend();
+    match backend {
+        NightModeBackend::Wlsunset => {
+            let temp_str = temperature.to_string();
+            Command::new("wlsunset")
+                .args(["-T", &temp_str, "-t", &temp_str])
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+                .map_err(|e| format!("Failed to start wlsunset: {e}"))?;
+            Ok(())
+        }
+        NightModeBackend::Gammastep => {
+            let temp_str = temperature.to_string();
+            Command::new("gammastep")
+                .args(["-O", &temp_str])
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+                .map_err(|e| format!("Failed to start gammastep: {e}"))?;
+            Ok(())
+        }
+        NightModeBackend::None => Err("No night mode backend available".to_string()),
+    }
+}
+
+pub fn stop_night_mode() {
+    let _ = Command::new("pkill").args(["-x", "wlsunset"]).status();
+    let _ = Command::new("pkill").args(["-x", "gammastep"]).status();
+}
+
+pub fn set_night_temperature(temperature: i32) {
+    if is_night_mode_active() {
+        let _ = start_night_mode(temperature);
+    }
 }

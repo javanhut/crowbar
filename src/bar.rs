@@ -33,6 +33,7 @@ impl Bar {
         config: &Config,
         shared_config: Rc<RefCell<Config>>,
         monitor: Option<&gtk4::gdk::Monitor>,
+        all_windows: Rc<RefCell<Vec<gtk4::Window>>>,
     ) -> Self {
         let window = gtk4::Window::new();
         window.set_title(Some("CrowBar"));
@@ -42,9 +43,7 @@ impl Bar {
         if gtk4_layer_shell::is_supported() {
             window.init_layer_shell();
             window.set_layer(gtk4_layer_shell::Layer::Top);
-            window.set_anchor(gtk4_layer_shell::Edge::Top, true);
-            window.set_anchor(gtk4_layer_shell::Edge::Left, true);
-            window.set_anchor(gtk4_layer_shell::Edge::Right, true);
+            apply_position_anchors(&window, &config.bar.position, config.bar.height);
             window.auto_exclusive_zone_enable();
             window.set_namespace(Some("crowbar"));
             window.set_keyboard_mode(gtk4_layer_shell::KeyboardMode::None);
@@ -54,10 +53,20 @@ impl Bar {
             }
         }
 
-        window.set_default_size(-1, config.bar.height);
-
-        let container = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
+        let is_vertical = config.bar.position == "left" || config.bar.position == "right";
+        let orientation = if is_vertical {
+            gtk4::Orientation::Vertical
+        } else {
+            gtk4::Orientation::Horizontal
+        };
+        let container = gtk4::Box::new(orientation, 4);
         container.add_css_class("bar-container");
+        if is_vertical {
+            container.add_css_class("bar-vertical");
+        } else {
+            container.add_css_class("bar-horizontal");
+        }
+        container.add_css_class(&format!("bar-{}", config.bar.position));
         container.set_margin_start(4);
         container.set_margin_end(4);
         container.set_margin_top(2);
@@ -125,8 +134,12 @@ impl Bar {
         }
 
         // Spacer
-        let spacer = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-        spacer.set_hexpand(true);
+        let spacer = gtk4::Box::new(orientation, 0);
+        if is_vertical {
+            spacer.set_vexpand(true);
+        } else {
+            spacer.set_hexpand(true);
+        }
         container.append(&spacer);
 
         // Build right modules
@@ -173,7 +186,7 @@ impl Bar {
                     clock = Some(c);
                 }
                 "settings" => {
-                    let s = modules::settings::Settings::new(shared_config.clone());
+                    let s = modules::settings::Settings::new(shared_config.clone(), all_windows.clone());
                     container.append(&s.widget);
                     settings = Some(s);
                 }
@@ -314,6 +327,87 @@ impl Bar {
     }
 }
 
+pub fn apply_position_anchors(window: &gtk4::Window, position: &str, thickness: i32) {
+    let is_vertical = position == "left" || position == "right";
+
+    // Set anchors
+    match position {
+        "bottom" => {
+            window.set_anchor(gtk4_layer_shell::Edge::Top, false);
+            window.set_anchor(gtk4_layer_shell::Edge::Bottom, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Left, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Right, true);
+        }
+        "left" => {
+            window.set_anchor(gtk4_layer_shell::Edge::Top, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Bottom, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Left, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Right, false);
+        }
+        "right" => {
+            window.set_anchor(gtk4_layer_shell::Edge::Top, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Bottom, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Left, false);
+            window.set_anchor(gtk4_layer_shell::Edge::Right, true);
+        }
+        _ => {
+            // "top" or any default
+            window.set_anchor(gtk4_layer_shell::Edge::Top, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Bottom, false);
+            window.set_anchor(gtk4_layer_shell::Edge::Left, true);
+            window.set_anchor(gtk4_layer_shell::Edge::Right, true);
+        }
+    }
+
+    // Set size request: thickness is height for top/bottom, width for left/right
+    // Using set_size_request instead of set_default_size so it works on already-visible windows
+    if is_vertical {
+        window.set_size_request(thickness, -1);
+        window.set_default_size(thickness, -1);
+    } else {
+        window.set_size_request(-1, thickness);
+        window.set_default_size(-1, thickness);
+    }
+
+    // Update container orientation and CSS classes
+    if let Some(child) = window.child() {
+        if let Ok(container) = child.downcast::<gtk4::Box>() {
+            let new_orientation = if is_vertical {
+                gtk4::Orientation::Vertical
+            } else {
+                gtk4::Orientation::Horizontal
+            };
+            container.set_orientation(new_orientation);
+
+            // Toggle vertical/horizontal CSS classes for styling
+            if is_vertical {
+                container.add_css_class("bar-vertical");
+                container.remove_css_class("bar-horizontal");
+            } else {
+                container.add_css_class("bar-horizontal");
+                container.remove_css_class("bar-vertical");
+            }
+
+            // Toggle position-specific CSS classes for border direction
+            container.remove_css_class("bar-left");
+            container.remove_css_class("bar-right");
+            container.remove_css_class("bar-top");
+            container.remove_css_class("bar-bottom");
+            container.add_css_class(&format!("bar-{position}"));
+
+            // Update spacer expand direction
+            let mut child_iter = container.first_child();
+            while let Some(widget) = child_iter {
+                if widget.hexpands() || widget.vexpands() {
+                    widget.set_hexpand(!is_vertical);
+                    widget.set_vexpand(is_vertical);
+                }
+                child_iter = widget.next_sibling();
+            }
+        }
+    }
+}
+
 pub fn create_bars(
     app: &gtk4::Application,
     client: Option<Rc<HyprlandClient>>,
@@ -321,6 +415,7 @@ pub fn create_bars(
     shared_config: Rc<RefCell<Config>>,
 ) -> Vec<Bar> {
     let mut bars = Vec::new();
+    let all_windows: Rc<RefCell<Vec<gtk4::Window>>> = Rc::new(RefCell::new(Vec::new()));
 
     if config.bar.monitor.is_empty() {
         // Create bars for all monitors
@@ -330,7 +425,7 @@ pub fn create_bars(
 
         if n == 0 {
             // Fallback: create single bar without specific monitor
-            let bar = Bar::new(app, client.clone(), config, shared_config.clone(), None);
+            let bar = Bar::new(app, client.clone(), config, shared_config.clone(), None, all_windows.clone());
             bars.push(bar);
         } else {
             for i in 0..n {
@@ -338,7 +433,7 @@ pub fn create_bars(
                     .item(i)
                     .and_then(|obj| obj.downcast::<gtk4::gdk::Monitor>().ok());
 
-                let bar = Bar::new(app, client.clone(), config, shared_config.clone(), monitor.as_ref());
+                let bar = Bar::new(app, client.clone(), config, shared_config.clone(), monitor.as_ref(), all_windows.clone());
                 bars.push(bar);
             }
         }
@@ -361,8 +456,16 @@ pub fn create_bars(
             }
         }
 
-        let bar = Bar::new(app, client.clone(), config, shared_config.clone(), target_monitor.as_ref());
+        let bar = Bar::new(app, client.clone(), config, shared_config.clone(), target_monitor.as_ref(), all_windows.clone());
         bars.push(bar);
+    }
+
+    // Populate shared window list now that all bars are created
+    {
+        let mut windows = all_windows.borrow_mut();
+        for bar in &bars {
+            windows.push(bar.window.clone());
+        }
     }
 
     // Setup events after bars are constructed.

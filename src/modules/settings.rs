@@ -10,7 +10,7 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn new(config: Rc<RefCell<Config>>) -> Self {
+    pub fn new(config: Rc<RefCell<Config>>, windows: Rc<RefCell<Vec<gtk4::Window>>>) -> Self {
         let widget = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         widget.add_css_class("settings");
 
@@ -229,11 +229,21 @@ impl Settings {
         height_spin.add_css_class("settings-spin");
 
         let config_height = config.clone();
+        let windows_height = windows.clone();
         height_spin.connect_value_changed(move |spin| {
             let mut cfg = config_height.borrow_mut();
             cfg.bar.height = spin.value() as i32;
+            let is_vertical = cfg.bar.position == "left" || cfg.bar.position == "right";
             if let Err(e) = cfg.save() {
                 eprintln!("Failed to save config: {e}");
+            }
+            let thickness = spin.value() as i32;
+            for win in windows_height.borrow().iter() {
+                if is_vertical {
+                    win.set_default_size(thickness, -1);
+                } else {
+                    win.set_default_size(-1, thickness);
+                }
             }
         });
         height_row.append(&height_spin);
@@ -249,7 +259,7 @@ impl Settings {
 
         let pos_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
 
-        let positions = [("Top", "top"), ("Bottom", "bottom")];
+        let positions = [("Top", "top"), ("Bottom", "bottom"), ("Left", "left"), ("Right", "right")];
         let pos_buttons: Rc<Vec<gtk4::Button>> = Rc::new(
             positions
                 .iter()
@@ -274,6 +284,8 @@ impl Settings {
             let pos_value = positions[i].1.to_string();
             let config_pos = config.clone();
             let buttons_clone = pos_buttons.clone();
+            let windows_pos = windows.clone();
+            let popover_pos = popover.clone();
             btn.connect_clicked(move |_| {
                 for b in buttons_clone.iter() {
                     b.remove_css_class("active");
@@ -285,6 +297,17 @@ impl Settings {
                 if let Err(e) = cfg.save() {
                     eprintln!("Failed to save config: {e}");
                 }
+
+                // Close popover before moving to avoid UI glitch
+                popover_pos.popdown();
+
+                // Apply position change live to all bar windows
+                if gtk4_layer_shell::is_supported() {
+                    let thickness = cfg.bar.height;
+                    for win in windows_pos.borrow().iter() {
+                        crate::bar::apply_position_anchors(win, &pos_value, thickness);
+                    }
+                }
             });
             pos_box.append(btn);
         }
@@ -293,7 +316,7 @@ impl Settings {
         popover_content.append(&pos_row);
 
         // Restart note
-        let note = gtk4::Label::new(Some("Module and bar changes take effect on restart"));
+        let note = gtk4::Label::new(Some("Module changes take effect on restart"));
         note.add_css_class("settings-note");
         note.set_halign(gtk4::Align::Start);
         popover_content.append(&note);

@@ -77,6 +77,17 @@ impl Brightness {
         });
         popover_content.append(&slider);
 
+        // Night mode section
+        let night_backend = brightness::detect_night_backend();
+        if night_backend != brightness::NightModeBackend::None {
+            let sep = gtk4::Separator::new(gtk4::Orientation::Horizontal);
+            sep.add_css_class("audio-separator");
+            popover_content.append(&sep);
+
+            let night_section = build_night_mode_section();
+            popover_content.append(&night_section);
+        }
+
         popover.set_child(Some(&popover_content));
         menu_button.set_popover(Some(&popover));
 
@@ -132,6 +143,138 @@ impl Brightness {
             id.remove();
         }
     }
+}
+
+fn build_night_mode_section() -> gtk4::Box {
+    let container = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+
+    // Header button that toggles the reveal
+    let header_btn = gtk4::Button::new();
+    header_btn.add_css_class("night-mode-header");
+
+    let header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+
+    let rune_label = gtk4::Label::new(Some("\u{16BE}")); // ᚾ Nauthiz
+    rune_label.add_css_class("night-mode-header-rune");
+    header_box.append(&rune_label);
+
+    let title_label = gtk4::Label::new(Some("Nott's Veil (Night Mode)"));
+    title_label.add_css_class("night-mode-header-title");
+    title_label.set_hexpand(true);
+    title_label.set_halign(gtk4::Align::Start);
+    header_box.append(&title_label);
+
+    let arrow = gtk4::Label::new(Some("\u{25B6}")); // ▶
+    arrow.add_css_class("night-mode-arrow");
+    header_box.append(&arrow);
+
+    header_btn.set_child(Some(&header_box));
+    container.append(&header_btn);
+
+    // Revealer
+    let revealer = gtk4::Revealer::new();
+    revealer.set_transition_type(gtk4::RevealerTransitionType::SlideDown);
+    revealer.set_transition_duration(200);
+    revealer.set_reveal_child(false);
+
+    let reveal_content = gtk4::Box::new(gtk4::Orientation::Vertical, 8);
+    reveal_content.set_margin_top(8);
+    reveal_content.set_margin_start(4);
+    reveal_content.set_margin_end(4);
+
+    // Toggle row
+    let toggle_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+    let toggle_rune = gtk4::Label::new(Some("\u{16BE}")); // ᚾ Nauthiz
+    toggle_rune.add_css_class("night-mode-rune");
+    toggle_row.append(&toggle_rune);
+
+    let toggle_label = gtk4::Label::new(Some("Night Mode"));
+    toggle_label.add_css_class("night-mode-label");
+    toggle_label.set_hexpand(true);
+    toggle_label.set_halign(gtk4::Align::Start);
+    toggle_row.append(&toggle_label);
+
+    let night_switch = gtk4::Switch::new();
+    night_switch.add_css_class("night-mode-switch");
+    night_switch.set_active(brightness::is_night_mode_active());
+    toggle_row.append(&night_switch);
+
+    reveal_content.append(&toggle_row);
+
+    // Temperature row
+    let temp_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+    let temp_label = gtk4::Label::new(Some("Warmth"));
+    temp_label.add_css_class("night-mode-label");
+    temp_label.set_halign(gtk4::Align::Start);
+    temp_row.append(&temp_label);
+
+    let temp_value = gtk4::Label::new(Some("4000K"));
+    temp_value.add_css_class("night-temp-value");
+    temp_value.set_hexpand(true);
+    temp_value.set_halign(gtk4::Align::End);
+    temp_row.append(&temp_value);
+
+    reveal_content.append(&temp_row);
+
+    // Temperature slider
+    let temp_slider =
+        gtk4::Scale::with_range(gtk4::Orientation::Horizontal, 2500.0, 6500.0, 100.0);
+    temp_slider.add_css_class("night-temp-slider");
+    temp_slider.set_value(4000.0);
+    temp_slider.set_hexpand(true);
+    temp_slider.set_draw_value(false);
+
+    let night_updating = Rc::new(Cell::new(false));
+
+    // Temperature slider handler
+    let temp_value_ref = temp_value.clone();
+    let night_updating_clone = night_updating.clone();
+    temp_slider.connect_value_changed(move |scale| {
+        if night_updating_clone.get() {
+            return;
+        }
+        let temp = scale.value() as i32;
+        temp_value_ref.set_text(&format!("{temp}K"));
+        brightness::set_night_temperature(temp);
+    });
+
+    reveal_content.append(&temp_slider);
+
+    revealer.set_child(Some(&reveal_content));
+    container.append(&revealer);
+
+    // Switch handler
+    let temp_slider_ref = temp_slider.clone();
+    let night_updating_clone2 = night_updating.clone();
+    night_switch.connect_state_set(move |_switch, active| {
+        if night_updating_clone2.get() {
+            return glib::Propagation::Proceed;
+        }
+        if active {
+            let temp = temp_slider_ref.value() as i32;
+            let _ = brightness::start_night_mode(temp);
+        } else {
+            brightness::stop_night_mode();
+        }
+        glib::Propagation::Proceed
+    });
+
+    // Toggle on header click
+    let revealer_ref = revealer.clone();
+    let arrow_ref = arrow.clone();
+    header_btn.connect_clicked(move |btn| {
+        let revealed = revealer_ref.reveals_child();
+        revealer_ref.set_reveal_child(!revealed);
+        if revealed {
+            arrow_ref.set_text("\u{25B6}"); // ▶ collapsed
+            btn.remove_css_class("expanded");
+        } else {
+            arrow_ref.set_text("\u{25BC}"); // ▼ expanded
+            btn.add_css_class("expanded");
+        }
+    });
+
+    container
 }
 
 fn refresh_brightness(
