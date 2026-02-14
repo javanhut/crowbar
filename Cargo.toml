@@ -1,0 +1,22 @@
+[package]
+name = "crowbar"
+version = "0.1.0"
+edition = "2021"
+description = "Nordic Aesir-themed status bar for Hyprland"
+
+[dependencies]
+gtk4 = { version = "0.9", features = ["v4_6", "v4_12"] }
+gtk4-layer-shell = "0.5"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+notify = "7"
+zbus = { version = "4", default-features = false, features = ["tokio"] }
+tokio = { version = "1", features = ["rt"] }
+futures-util = "0.3"
+async-channel = "2"
+
+[profile.release]
+lto = true
+strip = true
+opt-level = 3

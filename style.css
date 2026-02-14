@@ -56,6 +56,11 @@ window {
     background-color: transparent;
 }
 
+/* Make all popover contents transparent so popover background shows through */
+popover > contents {
+    background: transparent;
+}
+
 /* === Bifrost Bridge - Main Bar === */
 .bar-container {
     background: linear-gradient(180deg,
@@ -1288,4 +1293,351 @@ button:active {
 .media-control-icon {
     -gtk-icon-size: 24px;
     color: #c0caf5;
+}
+
+/* === Expanded Connectivity - WiFi Networks === */
+.wifi-network-list {
+    margin-top: 4px;
+}
+
+.wifi-network-row {
+    background: alpha(@frost_dark, 0.5);
+    border-radius: 6px;
+    padding: 4px;
+    transition: all 150ms ease;
+}
+
+.wifi-network-row:hover {
+    background: alpha(@frost_mid, 0.6);
+}
+
+.wifi-connected {
+    background: linear-gradient(90deg,
+        alpha(@bifrost_teal, 0.15) 0%,
+        alpha(@frost_dark, 0.5) 100%);
+    border-left: 3px solid @bifrost_teal;
+}
+
+.wifi-ssid {
+    color: @starlight;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.wifi-detail {
+    color: @moonlight;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.wifi-signal-icon {
+    -gtk-icon-size: 16px;
+    color: @bifrost_cyan;
+}
+
+.wifi-action-btn {
+    background: alpha(@bifrost_blue, 0.2);
+    border: 1px solid alpha(@bifrost_blue, 0.3);
+    border-radius: 4px;
+    color: @bifrost_cyan;
+    padding: 2px 8px;
+    font-size: 11px;
+    min-height: 24px;
+    transition: all 150ms ease;
+}
+
+.wifi-action-btn:hover {
+    background: alpha(@bifrost_blue, 0.4);
+    border-color: @bifrost_blue;
+}
+
+.wifi-forget-btn {
+    background: alpha(@fire_red, 0.15);
+    border: 1px solid alpha(@fire_red, 0.3);
+    border-radius: 4px;
+    color: @fire_red;
+    padding: 2px 8px;
+    font-size: 11px;
+    min-height: 24px;
+    transition: all 150ms ease;
+}
+
+.wifi-forget-btn:hover {
+    background: alpha(@fire_red, 0.3);
+    border-color: @fire_red;
+}
+
+.wifi-password-entry {
+    margin-top: 4px;
+}
+
+.wifi-password-input {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 4px;
+    color: @starlight;
+    padding: 4px 8px;
+    font-size: 12px;
+    min-height: 28px;
+}
+
+.wifi-password-input:focus {
+    border-color: @bifrost_blue;
+    box-shadow: 0 0 6px alpha(@bifrost_blue, 0.3);
+}
+
+.wifi-scan-btn {
+    background: alpha(@frost_dark, 0.6);
+    border: 1px solid alpha(@frost_light, 0.3);
+    border-radius: 6px;
+    color: @moonlight;
+    padding: 6px;
+    margin-top: 4px;
+    transition: all 150ms ease;
+}
+
+.wifi-scan-btn:hover {
+    background: alpha(@frost_mid, 0.8);
+    border-color: @bifrost_blue;
+    color: @starlight;
+}
+
+.wifi-hidden-form {
+    padding: 8px;
+    background: alpha(@frost_dark, 0.5);
+    border-radius: 6px;
+}
+
+/* === Expanded Connectivity - Bluetooth Devices === */
+.connectivity-subtitle {
+    color: @moonlight;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+.connectivity-empty {
+    color: @moonlight;
+    font-size: 12px;
+    font-style: italic;
+    opacity: 0.5;
+    padding: 8px;
+}
+
+.bt-device-row {
+    background: alpha(@frost_dark, 0.5);
+    border-radius: 6px;
+    padding: 6px;
+    transition: all 150ms ease;
+}
+
+.bt-device-row:hover {
+    background: alpha(@frost_mid, 0.6);
+}
+
+.bt-connected {
+    background: linear-gradient(90deg,
+        alpha(@bifrost_blue, 0.15) 0%,
+        alpha(@frost_dark, 0.5) 100%);
+    border-left: 3px solid @bifrost_blue;
+}
+
+.bt-device-name {
+    color: @starlight;
+    font-size: 13px;
+}
+
+.bt-battery {
+    color: @leaf_green;
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+.bt-scan-btn {
+    background: alpha(@frost_dark, 0.6);
+    border: 1px solid alpha(@frost_light, 0.3);
+    border-radius: 6px;
+    color: @moonlight;
+    padding: 6px;
+    margin-top: 4px;
+    transition: all 150ms ease;
+}
+
+.bt-scan-btn:hover {
+    background: alpha(@frost_mid, 0.8);
+    border-color: @bifrost_purple;
+    color: @starlight;
+}
+
+.bt-pair-btn {
+    background: alpha(@bifrost_purple, 0.2);
+    border: 1px solid alpha(@bifrost_purple, 0.3);
+    border-radius: 4px;
+    color: @bifrost_purple;
+    padding: 2px 8px;
+    font-size: 11px;
+    min-height: 24px;
+    transition: all 150ms ease;
+}
+
+.bt-pair-btn:hover {
+    background: alpha(@bifrost_purple, 0.4);
+    border-color: @bifrost_purple;
+}
+
+/* === Application Finder === */
+.app-finder {
+    margin: 0 2px;
+}
+
+.app-finder-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.app-finder-popover {
+    background: alpha(@void_dark, 0.95);
+    border: 1px solid alpha(@bifrost_purple, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px alpha(#000000, 0.6);
+}
+
+.app-finder-search {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 8px;
+    color: @starlight;
+    padding: 8px 12px;
+    font-size: 14px;
+    min-height: 32px;
+}
+
+.app-finder-search:focus {
+    border-color: @bifrost_purple;
+    box-shadow: 0 0 8px alpha(@bifrost_purple, 0.3);
+}
+
+.app-finder-row {
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: all 150ms ease;
+}
+
+.app-finder-row-hover {
+    background: alpha(@frost_dark, 0.6);
+}
+
+.app-finder-icon {
+    -gtk-icon-size: 32px;
+}
+
+.app-finder-name {
+    color: @starlight;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.app-finder-comment {
+    color: @moonlight;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+/* === Settings Menu === */
+.settings {
+    margin: 0 2px;
+}
+
+.settings-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.settings-popover {
+    background: alpha(@void_dark, 0.95);
+    border: 1px solid alpha(@mead_gold, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px alpha(#000000, 0.6);
+}
+
+.settings-section-label {
+    color: @mead_gold;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.settings-separator {
+    background: alpha(@frost_light, 0.3);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+.settings-theme-btn {
+    background: alpha(@frost_dark, 0.6);
+    border: 1px solid alpha(@frost_light, 0.3);
+    border-radius: 6px;
+    color: @moonlight;
+    padding: 6px 4px;
+    font-size: 11px;
+    min-height: 28px;
+    transition: all 150ms ease;
+}
+
+.settings-theme-btn:hover {
+    background: alpha(@frost_mid, 0.8);
+    border-color: @bifrost_blue;
+    color: @starlight;
+}
+
+.settings-theme-btn.active {
+    background: linear-gradient(135deg,
+        alpha(@bifrost_blue, 0.3) 0%,
+        alpha(@bifrost_purple, 0.2) 100%);
+    border-color: @bifrost_blue;
+    color: @bifrost_cyan;
+    box-shadow: 0 0 8px alpha(@bifrost_blue, 0.2);
+}
+
+.settings-module-row {
+    padding: 4px 0;
+}
+
+.settings-module-name {
+    color: @starlight;
+    font-size: 12px;
+}
+
+.settings-module-switch {
+    min-width: 36px;
+    min-height: 18px;
+}
+
+.settings-spin {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 4px;
+    color: @starlight;
+    min-width: 60px;
+}
+
+.settings-dropdown {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 4px;
+    color: @starlight;
+}
+
+.settings-note {
+    color: @moonlight;
+    font-size: 10px;
+    font-style: italic;
+    opacity: 0.5;
+    margin-top: 4px;
 }
