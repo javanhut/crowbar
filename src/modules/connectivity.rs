@@ -117,9 +117,34 @@ impl Connectivity {
             let wifi_list = wifi_list_clone.clone();
             let pop = popover_clone.clone();
             let btn_clone = btn.clone();
-            glib::idle_add_local_once(move || {
-                populate_wifi_list(&wifi_list, &pop);
-                btn_clone.set_sensitive(true);
+
+            // Show scanning indicator
+            clear_children(&wifi_list);
+            let scanning = gtk4::Label::new(Some("Scanning networks..."));
+            scanning.add_css_class("connectivity-empty");
+            wifi_list.append(&scanning);
+
+            let wifi_list_c = wifi_list.clone();
+            let (sender, receiver) = async_channel::bounded::<Vec<connectivity::WiFiNetwork>>(1);
+            std::thread::spawn(move || {
+                let networks = connectivity::scan_wifi_networks();
+                let _ = sender.send_blocking(networks);
+            });
+            glib::spawn_future_local(async move {
+                if let Ok(networks) = receiver.recv().await {
+                    clear_children(&wifi_list_c);
+                    if networks.is_empty() {
+                        let empty = gtk4::Label::new(Some("No networks found"));
+                        empty.add_css_class("connectivity-empty");
+                        wifi_list_c.append(&empty);
+                    } else {
+                        for network in &networks {
+                            let row = create_wifi_row(network, &wifi_list_c, &pop);
+                            wifi_list_c.append(&row);
+                        }
+                    }
+                    btn_clone.set_sensitive(true);
+                }
             });
         });
         popover_content.append(&wifi_scan_btn);
@@ -254,14 +279,48 @@ impl Connectivity {
             glib::Propagation::Proceed
         });
 
-        // Populate lists when popover opens
+        // Populate lists when popover opens (async to avoid blocking UI)
         let wifi_list_show = wifi_list_box.clone();
         let bt_paired_show = bt_paired_list.clone();
         let popover_show = popover.clone();
         popover.connect_show(move |_| {
-            populate_wifi_list(&wifi_list_show, &popover_show);
-            let paired = connectivity::get_paired_devices();
-            populate_bt_paired_list(&bt_paired_show, &paired);
+            // Show loading indicators immediately
+            clear_children(&wifi_list_show);
+            let wifi_loading = gtk4::Label::new(Some("Scanning networks..."));
+            wifi_loading.add_css_class("connectivity-empty");
+            wifi_list_show.append(&wifi_loading);
+
+            clear_children(&bt_paired_show);
+            let bt_loading = gtk4::Label::new(Some("Loading devices..."));
+            bt_loading.add_css_class("connectivity-empty");
+            bt_paired_show.append(&bt_loading);
+
+            // Fetch data in background thread
+            let wifi_list_c = wifi_list_show.clone();
+            let bt_paired_c = bt_paired_show.clone();
+            let popover_c = popover_show.clone();
+            let (sender, receiver) = async_channel::bounded::<(Vec<connectivity::WiFiNetwork>, Vec<connectivity::BluetoothDevice>)>(1);
+            std::thread::spawn(move || {
+                let networks = connectivity::scan_wifi_networks();
+                let paired = connectivity::get_paired_devices();
+                let _ = sender.send_blocking((networks, paired));
+            });
+            glib::spawn_future_local(async move {
+                if let Ok((networks, paired)) = receiver.recv().await {
+                    clear_children(&wifi_list_c);
+                    if networks.is_empty() {
+                        let empty = gtk4::Label::new(Some("No networks found"));
+                        empty.add_css_class("connectivity-empty");
+                        wifi_list_c.append(&empty);
+                    } else {
+                        for network in &networks {
+                            let row = create_wifi_row(network, &wifi_list_c, &popover_c);
+                            wifi_list_c.append(&row);
+                        }
+                    }
+                    populate_bt_paired_list(&bt_paired_c, &paired);
+                }
+            });
         });
 
         popover.set_child(Some(&popover_content));
