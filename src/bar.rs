@@ -277,7 +277,7 @@ impl Bar {
     }
 
     pub fn show(&self) {
-        self.window.show();
+        self.window.set_visible(true);
     }
 
     pub fn stop(&mut self) {
@@ -365,9 +365,7 @@ pub fn create_bars(
         bars.push(bar);
     }
 
-    // Setup events AFTER bars are in their final Vec location.
-    // setup_events() takes raw pointers to Bar fields — if called before push(),
-    // those pointers become dangling when push() moves the Bar into the Vec.
+    // Setup events after bars are constructed.
     if !bars.is_empty() {
         bars[0].setup_events();
     }

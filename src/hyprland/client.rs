@@ -4,6 +4,7 @@ use std::os::unix::net::UnixStream;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 pub struct Workspace {
     pub id: i32,
     pub name: String,
@@ -23,6 +24,7 @@ pub struct Window {
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
+#[allow(dead_code)]
 pub struct WorkspaceRef {
     pub id: i32,
     pub name: String,

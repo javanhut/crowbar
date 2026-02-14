@@ -14,6 +14,7 @@ pub enum BatteryStatus {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct BatteryInfo {
     pub name: String,
     pub capacity: i32,

@@ -26,6 +26,7 @@ pub struct BluetoothInfo {
     pub device: String,
 }
 
+#[allow(dead_code)]
 pub struct BluetoothDevice {
     pub mac: String,
     pub name: String,

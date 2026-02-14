@@ -5,7 +5,7 @@ use gtk4::prelude::*;
 pub struct Battery {
     pub widget: gtk4::Box,
     label: gtk4::Label,
-    available: bool,
+    _available: bool,
     source_id: Option<glib::SourceId>,
 }
 
@@ -34,7 +34,7 @@ impl Battery {
         let mut module = Self {
             widget,
             label,
-            available,
+            _available: available,
             source_id: None,
         };
 

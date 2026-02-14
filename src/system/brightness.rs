@@ -4,6 +4,7 @@ use std::process::Command;
 
 const BASE_PATH: &str = "/sys/class/backlight";
 
+#[allow(dead_code)]
 pub struct BrightnessInfo {
     pub device: String,
     pub brightness: i32,
@@ -51,11 +52,6 @@ pub fn get_info(device: &str) -> Option<BrightnessInfo> {
         percent,
         available: true,
     })
-}
-
-pub fn get_first_backlight() -> Option<BrightnessInfo> {
-    let devices = find_backlights();
-    devices.first().and_then(|d| get_info(d))
 }
 
 pub fn set_brightness(_device: &str, percent: i32) {

@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 pub struct AppFinder {
     pub widget: gtk4::Box,
-    entries: Rc<RefCell<Vec<app_finder::DesktopEntry>>>,
+    _entries: Rc<RefCell<Vec<app_finder::DesktopEntry>>>,
 }
 
 impl AppFinder {
@@ -118,7 +118,7 @@ impl AppFinder {
 
         widget.append(&menu_button);
 
-        Self { widget, entries }
+        Self { widget, _entries: entries }
     }
 }
 
