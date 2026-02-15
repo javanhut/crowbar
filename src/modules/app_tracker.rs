@@ -16,6 +16,7 @@ struct AppInfo {
 
 struct WindowInfo {
     address: String,
+    pid: i32,
     minimized: bool,
 }
 
@@ -112,6 +113,7 @@ fn do_refresh(
         let is_minimized = c.workspace.name.starts_with("special:minimized");
         let win_info = WindowInfo {
             address: c.address.clone(),
+            pid: c.pid,
             minimized: is_minimized,
         };
 
@@ -423,6 +425,37 @@ fn show_context_menu(
         content.append(&close_all_btn);
     }
 
+    // Force close separator
+    let sep_force = gtk4::Separator::new(gtk4::Orientation::Horizontal);
+    content.append(&sep_force);
+
+    // Force Close (ᛏ Tiwaz - Justice/Force)
+    if let Some(first) = app.windows.first() {
+        let pid = first.pid;
+        let popover_c = popover.clone();
+        let force_btn = create_menu_item("\u{16CF}", "Force Close", move || {
+            let _ = crate::hyprland::HyprlandClient::kill_window(pid);
+            popover_c.popdown();
+        });
+        force_btn.add_css_class("app-menu-danger");
+        content.append(&force_btn);
+    }
+
+    // Force Close All
+    if app.windows.len() > 1 {
+        let pids: Vec<i32> = app.windows.iter().map(|w| w.pid).collect();
+        let label = format!("Force Close All ({})", pids.len());
+        let popover_c = popover.clone();
+        let force_all_btn = create_menu_item("\u{16CF}", &label, move || {
+            for pid in &pids {
+                let _ = crate::hyprland::HyprlandClient::kill_window(*pid);
+            }
+            popover_c.popdown();
+        });
+        force_all_btn.add_css_class("app-menu-danger");
+        content.append(&force_all_btn);
+    }
+
     // New instance
     let sep3 = gtk4::Separator::new(gtk4::Orientation::Horizontal);
     content.append(&sep3);
@@ -438,6 +471,32 @@ fn show_context_menu(
 
     popover.set_child(Some(&content));
 
+    // Keyboard navigation for context menu
+    let key_controller = gtk4::EventControllerKey::new();
+    let content_ref = content.clone();
+    key_controller.connect_key_pressed(move |_, keyval, _, _| {
+        match keyval {
+            gdk::Key::Down => {
+                focus_next_menu_item(&content_ref, true);
+                glib::Propagation::Stop
+            }
+            gdk::Key::Up => {
+                focus_next_menu_item(&content_ref, false);
+                glib::Propagation::Stop
+            }
+            gdk::Key::Return | gdk::Key::KP_Enter => {
+                if let Some(focused) = content_ref.root().and_then(|r| r.focus()) {
+                    if let Ok(btn) = focused.downcast::<gtk4::Button>() {
+                        btn.emit_clicked();
+                    }
+                }
+                glib::Propagation::Stop
+            }
+            _ => glib::Propagation::Proceed,
+        }
+    });
+    popover.add_controller(key_controller);
+
     // Unblock refreshes and clean up when the popover closes
     let menu_flag = menu_open.clone();
     popover.connect_closed(move |p| {
@@ -446,11 +505,15 @@ fn show_context_menu(
     });
 
     popover.popup();
+
+    // Focus first menu item button after popup
+    focus_first_menu_item(&content);
 }
 
 fn create_menu_item(rune: &str, label: &str, on_click: impl Fn() + 'static) -> gtk4::Button {
     let btn = gtk4::Button::new();
     btn.add_css_class("app-menu-item");
+    btn.set_focusable(true);
 
     let box_ = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
 
@@ -466,4 +529,44 @@ fn create_menu_item(rune: &str, label: &str, on_click: impl Fn() + 'static) -> g
 
     btn.connect_clicked(move |_| on_click());
     btn
+}
+
+fn collect_menu_buttons(container: &gtk4::Box) -> Vec<gtk4::Button> {
+    let mut buttons = Vec::new();
+    let mut child = container.first_child();
+    while let Some(widget) = child {
+        if let Ok(btn) = widget.clone().downcast::<gtk4::Button>() {
+            if btn.css_classes().iter().any(|c| c == "app-menu-item") {
+                buttons.push(btn);
+            }
+        }
+        child = widget.next_sibling();
+    }
+    buttons
+}
+
+fn focus_first_menu_item(container: &gtk4::Box) {
+    let buttons = collect_menu_buttons(container);
+    if let Some(first) = buttons.first() {
+        first.grab_focus();
+    }
+}
+
+fn focus_next_menu_item(container: &gtk4::Box, forward: bool) {
+    let buttons = collect_menu_buttons(container);
+    if buttons.is_empty() {
+        return;
+    }
+    let focused_idx = buttons.iter().position(|b| b.has_focus());
+    let next = match focused_idx {
+        Some(idx) => {
+            if forward {
+                (idx + 1).min(buttons.len() - 1)
+            } else {
+                idx.saturating_sub(1)
+            }
+        }
+        None => 0,
+    };
+    buttons[next].grab_focus();
 }

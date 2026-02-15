@@ -1,7 +1,8 @@
 use crate::system::app_finder;
+use gtk4::gdk;
 use gtk4::glib;
 use gtk4::prelude::*;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 pub struct AppFinder {
@@ -64,38 +65,47 @@ impl AppFinder {
         results_scroll.set_child(Some(&results_box));
         popover_content.append(&results_scroll);
 
+        // Selected index for keyboard nav: -1 = search focused, 0+ = row index
+        let selected_index: Rc<Cell<i32>> = Rc::new(Cell::new(-1));
+        // Current visible results for keyboard launch
+        let visible_results: Rc<RefCell<Vec<app_finder::DesktopEntry>>> =
+            Rc::new(RefCell::new(Vec::new()));
+
         // Populate initial results
         let entries_clone = entries.clone();
         let results_clone = results_box.clone();
         let popover_clone = popover.clone();
-        populate_results(&results_clone, &entries_clone.borrow(), "", &popover_clone);
+        let sel_init = selected_index.clone();
+        let vis_init = visible_results.clone();
+        populate_results(&results_clone, &entries_clone.borrow(), "", &popover_clone, &sel_init, &vis_init);
 
         // Search as user types with debounce
         let debounce_id: Rc<RefCell<Option<glib::SourceId>>> = Rc::new(RefCell::new(None));
         let entries_search = entries.clone();
         let results_search = results_box.clone();
         let popover_search = popover.clone();
+        let sel_search = selected_index.clone();
+        let vis_search = visible_results.clone();
         search_entry.connect_changed(move |entry| {
             let query = entry.text().to_string();
             let entries_c = entries_search.clone();
             let results_c = results_search.clone();
             let popover_c = popover_search.clone();
             let debounce = debounce_id.clone();
+            let sel_c = sel_search.clone();
+            let vis_c = vis_search.clone();
 
             // Cancel previous debounce if it hasn't fired yet
             if let Some(id) = debounce.borrow_mut().take() {
                 id.remove();
             }
 
-            // Share debounce ref with the timeout so it clears itself after firing
-            // (timeout_add_local_once auto-removes the source, so we must not call
-            // remove() on it again — clearing the stored ID prevents that)
             let debounce_for_timeout = debounce.clone();
             let id = glib::timeout_add_local_once(
                 std::time::Duration::from_millis(100),
                 move || {
                     debounce_for_timeout.borrow_mut().take();
-                    populate_results(&results_c, &entries_c.borrow(), &query, &popover_c);
+                    populate_results(&results_c, &entries_c.borrow(), &query, &popover_c, &sel_c, &vis_c);
                 },
             );
             *debounce.borrow_mut() = Some(id);
@@ -106,12 +116,64 @@ impl AppFinder {
         let results_show = results_box.clone();
         let search_show = search_entry.clone();
         let popover_show = popover.clone();
+        let sel_show = selected_index.clone();
+        let vis_show = visible_results.clone();
         popover.connect_show(move |_| {
             *entries_show.borrow_mut() = app_finder::load_desktop_entries();
             search_show.set_text("");
-            populate_results(&results_show, &entries_show.borrow(), "", &popover_show);
+            populate_results(&results_show, &entries_show.borrow(), "", &popover_show, &sel_show, &vis_show);
             search_show.grab_focus();
         });
+
+        // Keyboard navigation controller
+        let key_controller = gtk4::EventControllerKey::new();
+        let sel_key = selected_index.clone();
+        let vis_key = visible_results.clone();
+        let results_key = results_box.clone();
+        let search_key = search_entry.clone();
+        let popover_key = popover.clone();
+        key_controller.connect_key_pressed(move |_, keyval, _, _| {
+            match keyval {
+                gdk::Key::Down => {
+                    let vis = vis_key.borrow();
+                    let max = vis.len() as i32 - 1;
+                    if max < 0 {
+                        return glib::Propagation::Proceed;
+                    }
+                    let curr = sel_key.get();
+                    let next = (curr + 1).min(max);
+                    sel_key.set(next);
+                    update_selection(&results_key, next);
+                    glib::Propagation::Stop
+                }
+                gdk::Key::Up => {
+                    let curr = sel_key.get();
+                    let next = curr - 1;
+                    if next < 0 {
+                        sel_key.set(-1);
+                        update_selection(&results_key, -1);
+                        search_key.grab_focus();
+                    } else {
+                        sel_key.set(next);
+                        update_selection(&results_key, next);
+                    }
+                    glib::Propagation::Stop
+                }
+                gdk::Key::Return | gdk::Key::KP_Enter => {
+                    let idx = sel_key.get();
+                    if idx >= 0 {
+                        let vis = vis_key.borrow();
+                        if let Some(entry) = vis.get(idx as usize) {
+                            app_finder::launch_app(entry);
+                            popover_key.popdown();
+                        }
+                    }
+                    glib::Propagation::Stop
+                }
+                _ => glib::Propagation::Proceed,
+            }
+        });
+        popover_content.add_controller(key_controller);
 
         popover.set_child(Some(&popover_content));
         menu_button.set_popover(Some(&popover));
@@ -127,23 +189,57 @@ fn populate_results(
     entries: &[app_finder::DesktopEntry],
     query: &str,
     popover: &gtk4::Popover,
+    selected_index: &Rc<Cell<i32>>,
+    visible_results: &Rc<RefCell<Vec<app_finder::DesktopEntry>>>,
 ) {
     // Clear existing
     while let Some(child) = results_box.first_child() {
         results_box.remove(&child);
     }
 
+    selected_index.set(-1);
+
     let results = app_finder::search_entries(entries, query);
     if results.is_empty() {
+        visible_results.borrow_mut().clear();
         let empty = gtk4::Label::new(Some("No applications found"));
         empty.add_css_class("connectivity-empty");
         results_box.append(&empty);
         return;
     }
 
+    // Store cloned entries for keyboard access
+    *visible_results.borrow_mut() = results
+        .iter()
+        .map(|e| app_finder::DesktopEntry {
+            name: e.name.clone(),
+            exec: e.exec.clone(),
+            icon: e.icon.clone(),
+            comment: e.comment.clone(),
+            categories: e.categories.clone(),
+            no_display: e.no_display,
+        })
+        .collect();
+
     for entry in results {
         let row = create_app_row(entry, popover);
         results_box.append(&row);
+    }
+}
+
+fn update_selection(results_box: &gtk4::Box, index: i32) {
+    let mut i = 0;
+    let mut child = results_box.first_child();
+    while let Some(widget) = child {
+        if widget.css_classes().iter().any(|c| c == "app-finder-row") {
+            if i == index {
+                widget.add_css_class("app-finder-row-selected");
+            } else {
+                widget.remove_css_class("app-finder-row-selected");
+            }
+            i += 1;
+        }
+        child = widget.next_sibling();
     }
 }
 

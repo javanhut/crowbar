@@ -116,6 +116,76 @@ impl Power {
             popover_content.append(&graph_area);
         }
 
+        // System section separator
+        let sep_sys = gtk4::Separator::new(gtk4::Orientation::Horizontal);
+        sep_sys.add_css_class("power-separator");
+        popover_content.append(&sep_sys);
+
+        // System section - Huginn's Eye
+        let sys_section = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
+        sys_section.add_css_class("power-system-section");
+
+        let sys_header = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+        let sys_rune = gtk4::Label::new(Some("\u{16BA}")); // ᚺ Hagalaz
+        sys_rune.add_css_class("power-system-rune");
+        let sys_label = gtk4::Label::new(Some("Huginn's Eye (System)"));
+        sys_label.add_css_class("power-system-title");
+        sys_header.append(&sys_rune);
+        sys_header.append(&sys_label);
+        sys_section.append(&sys_header);
+
+        // CPU row
+        let cpu_row = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
+        let cpu_label_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+        let cpu_text = gtk4::Label::new(Some("CPU"));
+        cpu_text.add_css_class("power-system-label");
+        cpu_text.set_halign(gtk4::Align::Start);
+        let cpu_value_label = gtk4::Label::new(Some("--%"));
+        cpu_value_label.add_css_class("power-system-value");
+        cpu_value_label.set_halign(gtk4::Align::End);
+        cpu_value_label.set_hexpand(true);
+        cpu_label_row.append(&cpu_text);
+        cpu_label_row.append(&cpu_value_label);
+        cpu_row.append(&cpu_label_row);
+
+        let cpu_bar = gtk4::LevelBar::new();
+        cpu_bar.set_min_value(0.0);
+        cpu_bar.set_max_value(100.0);
+        cpu_bar.set_value(0.0);
+        cpu_bar.add_css_class("power-system-bar");
+        cpu_bar.add_css_class("power-cpu-bar");
+        cpu_row.append(&cpu_bar);
+        sys_section.append(&cpu_row);
+
+        // RAM row
+        let ram_row = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
+        let ram_label_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+        let ram_text = gtk4::Label::new(Some("RAM"));
+        ram_text.add_css_class("power-system-label");
+        ram_text.set_halign(gtk4::Align::Start);
+        let ram_value_label = gtk4::Label::new(Some("-- / --"));
+        ram_value_label.add_css_class("power-system-value");
+        ram_value_label.set_halign(gtk4::Align::End);
+        ram_value_label.set_hexpand(true);
+        ram_label_row.append(&ram_text);
+        ram_label_row.append(&ram_value_label);
+        ram_row.append(&ram_label_row);
+
+        let ram_bar = gtk4::LevelBar::new();
+        ram_bar.set_min_value(0.0);
+        ram_bar.set_max_value(100.0);
+        ram_bar.set_value(0.0);
+        ram_bar.add_css_class("power-system-bar");
+        ram_bar.add_css_class("power-ram-bar");
+        ram_row.append(&ram_bar);
+        sys_section.append(&ram_row);
+
+        popover_content.append(&sys_section);
+
+        // Previous CPU sample for delta calculations
+        let prev_cpu_sample: Rc<RefCell<Option<power::CpuSample>>> =
+            Rc::new(RefCell::new(power::read_cpu_sample()));
+
         // Profile section separator
         let sep2 = gtk4::Separator::new(gtk4::Orientation::Horizontal);
         sep2.add_css_class("power-separator");
@@ -184,6 +254,11 @@ impl Power {
         let footer_ref = footer_label.clone();
         let history_for_show = power_history.clone();
         let graph_ref = graph_area.clone();
+        let cpu_val_show = cpu_value_label.clone();
+        let cpu_bar_show = cpu_bar.clone();
+        let ram_val_show = ram_value_label.clone();
+        let ram_bar_show = ram_bar.clone();
+        let prev_cpu_show = prev_cpu_sample.clone();
         popover.connect_show(move |_| {
             refresh_popover(
                 &bat_status_ref,
@@ -192,6 +267,11 @@ impl Power {
                 &footer_ref,
                 &history_for_show,
                 &graph_ref,
+                &cpu_val_show,
+                &cpu_bar_show,
+                &ram_val_show,
+                &ram_bar_show,
+                &prev_cpu_show,
             );
         });
 
@@ -210,6 +290,11 @@ impl Power {
             footer_label,
             power_history,
             graph_area,
+            cpu_value_label,
+            cpu_bar,
+            ram_value_label,
+            ram_bar,
+            prev_cpu_sample,
         );
         module
     }
@@ -223,6 +308,11 @@ impl Power {
         footer: gtk4::Label,
         power_history: Rc<RefCell<VecDeque<f64>>>,
         graph_area: gtk4::DrawingArea,
+        cpu_value: gtk4::Label,
+        cpu_bar: gtk4::LevelBar,
+        ram_value: gtk4::Label,
+        ram_bar: gtk4::LevelBar,
+        prev_cpu: Rc<RefCell<Option<power::CpuSample>>>,
     ) {
         let label = self.label.clone();
         let widget = self.widget.clone();
@@ -236,6 +326,11 @@ impl Power {
                 &footer,
                 &power_history,
                 &graph_area,
+                &cpu_value,
+                &cpu_bar,
+                &ram_value,
+                &ram_bar,
+                &prev_cpu,
             );
             glib::ControlFlow::Continue
         }));
@@ -274,7 +369,10 @@ fn refresh_bar_label(label: &gtk4::Label, widget: &gtk4::Box) {
 
     let mut tooltip = format!("Governor: {}", info.governor.display_name());
     if info.has_temp {
-        tooltip += &format!("\nCPU: {}", power::format_temperature(info.temperature));
+        tooltip += &format!("\nTemp: {}", power::format_temperature(info.temperature));
+    }
+    if let Some(mem) = &info.memory {
+        tooltip += &format!("\nRAM: {:.0}%", mem.usage_percent);
     }
     if info.frequency_mhz > 0 {
         if info.frequency_mhz >= 1000 {
@@ -293,6 +391,11 @@ fn refresh_popover(
     footer: &gtk4::Label,
     power_history: &Rc<RefCell<VecDeque<f64>>>,
     graph_area: &gtk4::DrawingArea,
+    cpu_value: &gtk4::Label,
+    cpu_bar: &gtk4::LevelBar,
+    ram_value: &gtk4::Label,
+    ram_bar: &gtk4::LevelBar,
+    prev_cpu: &Rc<RefCell<Option<power::CpuSample>>>,
 ) {
     let info = power::get_info();
 
@@ -351,6 +454,28 @@ fn refresh_popover(
         }
     }
     footer.set_text(&footer_parts.join(" | "));
+
+    // Update CPU usage
+    if let Some(curr_sample) = power::read_cpu_sample() {
+        let prev = prev_cpu.borrow();
+        if let Some(ref prev_sample) = *prev {
+            let usage = power::compute_cpu_usage(prev_sample, &curr_sample);
+            cpu_value.set_text(&format!("{usage:.0}%"));
+            cpu_bar.set_value(usage);
+        }
+        drop(prev);
+        *prev_cpu.borrow_mut() = Some(curr_sample);
+    }
+
+    // Update RAM usage
+    if let Some(mem) = power::get_memory_info() {
+        ram_value.set_text(&format!(
+            "{} / {}",
+            power::format_memory_gb(mem.used_kb),
+            power::format_memory_gb(mem.total_kb)
+        ));
+        ram_bar.set_value(mem.usage_percent);
+    }
 
     // Redraw graph
     graph_area.queue_draw();

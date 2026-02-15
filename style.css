@@ -665,6 +665,91 @@ popover > contents {
     border-color: alpha(@bifrost_purple, 0.4);
 }
 
+/* NTP Status */
+.clock-ntp-status {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.clock-ntp-status.ntp-synced {
+    color: @bifrost_teal;
+}
+
+.clock-ntp-status.ntp-unsynced {
+    color: @fire_red;
+}
+
+/* World Timezone Viewer */
+.clock-tz-viewer-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.clock-tz-viewer-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: @bifrost_cyan;
+    text-shadow:
+        0 0 8px alpha(@bifrost_cyan, 0.8),
+        0 0 16px alpha(@bifrost_cyan, 0.4);
+}
+
+.clock-tz-dropdown {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 6px;
+    color: @starlight;
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.clock-remote-time {
+    color: @bifrost_cyan;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 14px;
+    font-weight: 600;
+    text-shadow: 0 0 8px alpha(@bifrost_cyan, 0.4);
+    padding: 4px 0;
+}
+
+/* 12h/24h Format Toggle */
+.clock-format-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.clock-format-switch slider {
+    background: linear-gradient(180deg,
+        #3b4261 0%,
+        #2f3549 100%);
+    border-radius: 12px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.clock-format-switch:checked slider {
+    background: linear-gradient(180deg,
+        @bifrost_cyan 0%,
+        @bifrost_blue 100%);
+}
+
+.clock-format-switch trough {
+    background: alpha(#1a1b26, 0.8);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 14px;
+    min-width: 48px;
+    min-height: 24px;
+}
+
+.clock-format-switch:checked trough {
+    background: alpha(@bifrost_cyan, 0.2);
+    border-color: alpha(@bifrost_cyan, 0.4);
+}
+
 /* === Power Button - Gateway to Ragnarok === */
 .power-button {
     background: linear-gradient(145deg,
@@ -1153,6 +1238,74 @@ button:active {
     margin-top: 4px;
 }
 
+/* System section - Huginn's Eye */
+.power-system-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.power-system-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: @bifrost_cyan;
+    text-shadow: 0 0 8px alpha(@bifrost_cyan, 0.6);
+}
+
+.power-system-title {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.power-system-label {
+    color: @moonlight;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.power-system-value {
+    color: @bifrost_cyan;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 0 6px alpha(@bifrost_cyan, 0.3);
+}
+
+.power-system-bar {
+    min-height: 6px;
+    border-radius: 3px;
+    margin-top: 2px;
+}
+
+.power-system-bar block.filled {
+    border-radius: 3px;
+}
+
+.power-cpu-bar block.filled {
+    background: linear-gradient(90deg,
+        @bifrost_blue 0%,
+        @bifrost_cyan 100%);
+}
+
+.power-cpu-bar trough {
+    background: alpha(@void_deep, 0.8);
+    border: 1px solid alpha(@bifrost_blue, 0.2);
+    border-radius: 3px;
+}
+
+.power-ram-bar block.filled {
+    background: linear-gradient(90deg,
+        @bifrost_purple 0%,
+        @bifrost_teal 100%);
+}
+
+.power-ram-bar trough {
+    background: alpha(@void_deep, 0.8);
+    border: 1px solid alpha(@bifrost_purple, 0.2);
+    border-radius: 3px;
+}
+
 /* === Night Mode - Nott's Veil === */
 .night-mode-header {
     background: alpha(@frost_dark, 0.5);
@@ -1483,10 +1636,16 @@ button:active {
     transition: all 150ms ease;
 }
 
-.app-menu-item:hover {
+.app-menu-item:hover,
+.app-menu-item:focus {
     background: linear-gradient(90deg,
         alpha(#7aa2f7, 0.2) 0%,
         alpha(#7aa2f7, 0.08) 100%);
+    outline: none;
+}
+
+.app-menu-item:focus {
+    border: 1px solid alpha(#7aa2f7, 0.3);
 }
 
 .app-menu-item.app-menu-danger:hover {
@@ -2048,8 +2207,13 @@ button:active {
     transition: all 150ms ease;
 }
 
-.app-finder-row-hover {
+.app-finder-row-hover,
+.app-finder-row-selected {
     background: alpha(@frost_dark, 0.6);
+}
+
+.app-finder-row-selected {
+    border: 1px solid alpha(@bifrost_purple, 0.4);
 }
 
 .app-finder-icon {

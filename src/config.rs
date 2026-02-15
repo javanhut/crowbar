@@ -3,11 +3,20 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
+pub struct ClockConfig {
+    pub use_12h: bool,
+    pub show_seconds: bool,
+    pub show_ntp_status: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Config {
     pub bar: BarConfig,
     pub modules: ModulesConfig,
     pub intervals: IntervalsConfig,
     pub theme: ThemeConfig,
+    pub clock: ClockConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -69,6 +78,16 @@ pub struct ThemeColors {
     pub sunlight: String,
 }
 
+impl Default for ClockConfig {
+    fn default() -> Self {
+        Self {
+            use_12h: false,
+            show_seconds: false,
+            show_ntp_status: true,
+        }
+    }
+}
+
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -76,6 +95,7 @@ impl Default for Config {
             modules: ModulesConfig::default(),
             intervals: IntervalsConfig::default(),
             theme: ThemeConfig::default(),
+            clock: ClockConfig::default(),
         }
     }
 }

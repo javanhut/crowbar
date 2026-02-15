@@ -20,6 +20,8 @@ pub struct Window {
     pub title: String,
     pub class: String,
     #[serde(default)]
+    pub pid: i32,
+    #[serde(default)]
     pub workspace: WorkspaceRef,
 }
 
@@ -119,5 +121,17 @@ impl HyprlandClient {
     pub fn dispatch(&self, cmd: &str) -> Result<(), String> {
         self.send_command(&format!("dispatch {cmd}"))?;
         Ok(())
+    }
+
+    pub fn kill_window(pid: i32) -> Result<(), String> {
+        let status = std::process::Command::new("kill")
+            .args(["-9", &pid.to_string()])
+            .status()
+            .map_err(|e| format!("Failed to kill process {pid}: {e}"))?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err(format!("kill -9 {pid} failed"))
+        }
     }
 }

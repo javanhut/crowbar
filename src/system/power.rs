@@ -37,11 +37,45 @@ pub struct ProfileInfo {
     pub method: ProfileMethod,
 }
 
+#[derive(Debug, Clone)]
+pub struct CpuSample {
+    pub user: u64,
+    pub nice: u64,
+    pub system: u64,
+    pub idle: u64,
+    pub iowait: u64,
+    pub irq: u64,
+    pub softirq: u64,
+    pub steal: u64,
+}
+
+impl CpuSample {
+    fn total(&self) -> u64 {
+        self.user + self.nice + self.system + self.idle + self.iowait + self.irq + self.softirq + self.steal
+    }
+
+    fn idle_total(&self) -> u64 {
+        self.idle + self.iowait
+    }
+}
+
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+pub struct MemoryInfo {
+    pub total_kb: u64,
+    pub available_kb: u64,
+    pub used_kb: u64,
+    pub usage_percent: f64,
+}
+
+#[allow(dead_code)]
 pub struct PowerInfo {
     pub governor: Governor,
     pub temperature: f64,
     pub frequency_mhz: i32,
     pub has_temp: bool,
+    pub cpu_usage: Option<f64>,
+    pub memory: Option<MemoryInfo>,
 }
 
 fn read_sysfs(path: &Path) -> Option<String> {
@@ -285,6 +319,75 @@ fn num_cpus_available() -> usize {
     }
 }
 
+pub fn read_cpu_sample() -> Option<CpuSample> {
+    let content = fs::read_to_string("/proc/stat").ok()?;
+    let line = content.lines().next()?;
+    if !line.starts_with("cpu ") {
+        return None;
+    }
+    let fields: Vec<u64> = line
+        .split_whitespace()
+        .skip(1)
+        .filter_map(|s| s.parse().ok())
+        .collect();
+    if fields.len() < 8 {
+        return None;
+    }
+    Some(CpuSample {
+        user: fields[0],
+        nice: fields[1],
+        system: fields[2],
+        idle: fields[3],
+        iowait: fields[4],
+        irq: fields[5],
+        softirq: fields[6],
+        steal: fields[7],
+    })
+}
+
+pub fn compute_cpu_usage(prev: &CpuSample, curr: &CpuSample) -> f64 {
+    let total_delta = curr.total().saturating_sub(prev.total());
+    let idle_delta = curr.idle_total().saturating_sub(prev.idle_total());
+    if total_delta == 0 {
+        return 0.0;
+    }
+    100.0 * (total_delta - idle_delta) as f64 / total_delta as f64
+}
+
+pub fn get_memory_info() -> Option<MemoryInfo> {
+    let content = fs::read_to_string("/proc/meminfo").ok()?;
+    let mut total_kb = None;
+    let mut available_kb = None;
+    for line in content.lines() {
+        if let Some(rest) = line.strip_prefix("MemTotal:") {
+            total_kb = rest.trim().strip_suffix("kB").and_then(|s| s.trim().parse().ok());
+        } else if let Some(rest) = line.strip_prefix("MemAvailable:") {
+            available_kb = rest.trim().strip_suffix("kB").and_then(|s| s.trim().parse().ok());
+        }
+        if total_kb.is_some() && available_kb.is_some() {
+            break;
+        }
+    }
+    let total: u64 = total_kb?;
+    let available: u64 = available_kb?;
+    let used = total.saturating_sub(available);
+    let usage_percent = if total > 0 {
+        100.0 * used as f64 / total as f64
+    } else {
+        0.0
+    };
+    Some(MemoryInfo {
+        total_kb: total,
+        available_kb: available,
+        used_kb: used,
+        usage_percent,
+    })
+}
+
+pub fn format_memory_gb(kb: u64) -> String {
+    format!("{:.1} GB", kb as f64 / 1_048_576.0)
+}
+
 pub fn get_info() -> PowerInfo {
     let (temperature, has_temp) = match get_temperature() {
         Some(t) => (t, true),
@@ -296,6 +399,8 @@ pub fn get_info() -> PowerInfo {
         temperature,
         frequency_mhz: get_frequency_mhz(),
         has_temp,
+        cpu_usage: None,
+        memory: get_memory_info(),
     }
 }
 

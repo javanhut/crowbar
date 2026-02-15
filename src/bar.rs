@@ -177,7 +177,7 @@ impl Bar {
                     container.append(&sep);
                 }
                 "clock" => {
-                    let c = modules::clock::Clock::new(config.intervals.clock);
+                    let c = modules::clock::Clock::new(config.intervals.clock, &config.clock);
                     container.append(&c.widget);
                     clock = Some(c);
                 }
