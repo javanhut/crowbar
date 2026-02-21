@@ -17,7 +17,6 @@ pub struct Audio {
     card_profiles_list: gtk4::Box,
     sink_list: gtk4::Box,
     source_list: gtk4::Box,
-    available: bool,
     updating: Rc<Cell<bool>>,
     event_listener: Option<audio::AudioEventListener>,
 }
@@ -262,13 +261,6 @@ impl Audio {
 
         widget.append(&menu_button);
 
-        let info = audio::get_info();
-        let available = info.available;
-
-        if !available {
-            widget.set_visible(false);
-        }
-
         let module = Self {
             widget,
             label,
@@ -282,23 +274,16 @@ impl Audio {
             card_profiles_list,
             sink_list,
             source_list,
-            available,
             updating,
             event_listener: None,
         };
 
-        if available {
-            module.refresh();
-        }
+        module.refresh();
 
         module
     }
 
     pub fn setup_events(&mut self) {
-        if !self.available {
-            return;
-        }
-
         let label = self.label.clone();
         let widget = self.widget.clone();
         let slider = self.slider.clone();

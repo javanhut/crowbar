@@ -532,28 +532,39 @@ impl AudioEventListener {
         let running = self.running.clone();
 
         std::thread::spawn(move || {
-            let Ok(mut child) = Command::new("pactl")
-                .arg("subscribe")
-                .stdout(std::process::Stdio::piped())
-                .spawn()
-            else {
-                return;
-            };
+            while running.load(Ordering::SeqCst) {
+                let Ok(mut child) = Command::new("pactl")
+                    .arg("subscribe")
+                    .stdout(std::process::Stdio::piped())
+                    .spawn()
+                else {
+                    // pactl not available yet — wait and retry
+                    std::thread::sleep(std::time::Duration::from_secs(3));
+                    continue;
+                };
 
-            let stdout = child.stdout.take().unwrap();
-            let reader = std::io::BufReader::new(stdout);
+                let stdout = child.stdout.take().unwrap();
+                let reader = std::io::BufReader::new(stdout);
 
-            for line in reader.lines() {
-                if !running.load(Ordering::SeqCst) {
-                    break;
+                for line in reader.lines() {
+                    if !running.load(Ordering::SeqCst) {
+                        break;
+                    }
+                    let Ok(line) = line else { break };
+                    if line.contains("sink") || line.contains("source") || line.contains("server") {
+                        let _ = sender.send_blocking(());
+                    }
                 }
-                let Ok(line) = line else { break };
-                if line.contains("sink") || line.contains("source") || line.contains("server") {
+
+                let _ = child.kill();
+
+                // pactl subscribe exited (daemon restarted?) — retry after a pause
+                if running.load(Ordering::SeqCst) {
+                    std::thread::sleep(std::time::Duration::from_secs(2));
+                    // Trigger a refresh so UI picks up new state after reconnect
                     let _ = sender.send_blocking(());
                 }
             }
-
-            let _ = child.kill();
         });
     }
 
