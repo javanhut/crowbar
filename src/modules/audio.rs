@@ -544,7 +544,12 @@ fn rebuild_app_streams(app_streams_list: &gtk4::Box) {
     let sink_inputs = audio::list_sink_inputs();
 
     if sink_inputs.is_empty() {
-        let empty_label = gtk4::Label::new(Some("No active streams"));
+        let msg = if audio::current_backend() == audio::BackendType::Wpctl {
+            "Per-app mixer unavailable with WirePlumber"
+        } else {
+            "No active streams"
+        };
+        let empty_label = gtk4::Label::new(Some(msg));
         empty_label.add_css_class("audio-app-empty");
         app_streams_list.append(&empty_label);
         return;
@@ -657,7 +662,12 @@ fn rebuild_card_profiles(card_profiles_list: &gtk4::Box) {
     let cards = audio::list_cards();
 
     if cards.is_empty() {
-        let empty_label = gtk4::Label::new(Some("No audio cards found"));
+        let msg = if audio::current_backend() == audio::BackendType::Wpctl {
+            "Card profiles unavailable with WirePlumber"
+        } else {
+            "No audio cards found"
+        };
+        let empty_label = gtk4::Label::new(Some(msg));
         empty_label.add_css_class("audio-app-empty");
         card_profiles_list.append(&empty_label);
         return;

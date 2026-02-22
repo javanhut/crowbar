@@ -1,9 +1,34 @@
 use crate::config::Config;
 use crate::css;
-use gtk4::glib;
 use gtk4::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+/// All known named modules and their display names.
+/// Separators are handled separately and are NOT in this list.
+const MODULE_DISPLAY: &[(&str, &str)] = &[
+    ("workspaces", "Workspaces"),
+    ("window_title", "Window Title"),
+    ("app_tracker", "App Tracker"),
+    ("media", "Media"),
+    ("app_finder", "App Finder"),
+    ("systray", "System Tray"),
+    ("connectivity", "Connectivity"),
+    ("audio", "Audio"),
+    ("brightness", "Brightness"),
+    ("power", "Power"),
+    ("battery", "Battery"),
+    ("clock", "Clock"),
+    ("power_menu", "Power Menu"),
+];
+
+fn module_display_name(id: &str) -> &str {
+    MODULE_DISPLAY
+        .iter()
+        .find(|(k, _)| *k == id)
+        .map(|(_, v)| *v)
+        .unwrap_or(id)
+}
 
 pub struct Settings {
     pub widget: gtk4::Box,
@@ -33,7 +58,7 @@ impl Settings {
         popover_content.set_margin_bottom(12);
         popover_content.set_margin_start(12);
         popover_content.set_margin_end(12);
-        popover_content.set_size_request(350, -1);
+        popover_content.set_size_request(360, -1);
 
         // Header
         let header = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
@@ -113,7 +138,7 @@ impl Settings {
         sep1.add_css_class("settings-separator");
         popover_content.append(&sep1);
 
-        // === Module Toggles ===
+        // === Module Layout ===
         let modules_label = gtk4::Label::new(Some("Runes (Modules)"));
         modules_label.add_css_class("settings-section-label");
         modules_label.set_halign(gtk4::Align::Start);
@@ -121,79 +146,11 @@ impl Settings {
 
         let modules_scroll = gtk4::ScrolledWindow::new();
         modules_scroll.set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Automatic);
-        modules_scroll.set_max_content_height(200);
+        modules_scroll.set_max_content_height(300);
         modules_scroll.set_propagate_natural_height(true);
 
-        let modules_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
-
-        let module_names = [
-            ("workspaces", "Workspaces"),
-            ("window_title", "Window Title"),
-            ("app_tracker", "App Tracker"),
-            ("media", "Media"),
-            ("app_finder", "App Finder"),
-            ("systray", "System Tray"),
-            ("connectivity", "Connectivity"),
-            ("audio", "Audio"),
-            ("brightness", "Brightness"),
-            ("power", "Power"),
-            ("battery", "Battery"),
-            ("clock", "Clock"),
-            ("power_menu", "Power Menu"),
-        ];
-
-        for (id, display_name) in &module_names {
-            let row = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-            row.add_css_class("settings-module-row");
-
-            let label = gtk4::Label::new(Some(display_name));
-            label.set_hexpand(true);
-            label.set_halign(gtk4::Align::Start);
-            label.add_css_class("settings-module-name");
-            row.append(&label);
-
-            let switch = gtk4::Switch::new();
-            switch.set_valign(gtk4::Align::Center);
-            switch.add_css_class("settings-module-switch");
-
-            // Check if module is in current config
-            {
-                let cfg = config.borrow();
-                let is_enabled = cfg.modules.left.contains(&id.to_string())
-                    || cfg.modules.right.contains(&id.to_string());
-                switch.set_active(is_enabled);
-            }
-
-            let config_clone = config.clone();
-            let module_id = id.to_string();
-            switch.connect_state_set(move |_, state| {
-                let mut cfg = config_clone.borrow_mut();
-                if state {
-                    // Add to appropriate side if not present
-                    let is_left = matches!(
-                        module_id.as_str(),
-                        "workspaces" | "window_title" | "app_tracker" | "media" | "app_finder"
-                    );
-                    if is_left {
-                        if !cfg.modules.left.contains(&module_id) {
-                            cfg.modules.left.push(module_id.clone());
-                        }
-                    } else if !cfg.modules.right.contains(&module_id) {
-                        cfg.modules.right.push(module_id.clone());
-                    }
-                } else {
-                    cfg.modules.left.retain(|m| m != &module_id);
-                    cfg.modules.right.retain(|m| m != &module_id);
-                }
-                if let Err(e) = cfg.save() {
-                    eprintln!("Failed to save config: {e}");
-                }
-                glib::Propagation::Proceed
-            });
-
-            row.append(&switch);
-            modules_box.append(&row);
-        }
+        let modules_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
+        rebuild_module_order(&modules_box, &config);
 
         modules_scroll.set_child(Some(&modules_box));
         popover_content.append(&modules_scroll);
@@ -327,7 +284,7 @@ impl Settings {
         popover_content.append(&pos_row);
 
         // Restart note
-        let note = gtk4::Label::new(Some("Module changes take effect on restart"));
+        let note = gtk4::Label::new(Some("Position and enable changes take effect on restart"));
         note.add_css_class("settings-note");
         note.set_halign(gtk4::Align::Start);
         popover_content.append(&note);
@@ -339,4 +296,231 @@ impl Settings {
 
         Self { widget }
     }
+}
+
+/// Clears and rebuilds the module ordering UI inside `modules_box`.
+/// Called on initial build and after every reorder / enable / disable action.
+fn rebuild_module_order(modules_box: &gtk4::Box, config: &Rc<RefCell<Config>>) {
+    // Clear all existing children
+    while let Some(child) = modules_box.first_child() {
+        modules_box.remove(&child);
+    }
+
+    // Snapshot current state so we don't hold the borrow while building widgets
+    let (left, right) = {
+        let cfg = config.borrow();
+        (cfg.modules.left.clone(), cfg.modules.right.clone())
+    };
+
+    // Helper: section header label
+    let side_header = |text: &str| {
+        let l = gtk4::Label::new(Some(text));
+        l.add_css_class("settings-side-label");
+        l.set_halign(gtk4::Align::Start);
+        l
+    };
+
+    // === Left Side ===
+    modules_box.append(&side_header("Left Side"));
+    let left_len = left.len();
+    for (i, name) in left.iter().enumerate() {
+        let row = build_module_row(name, i, left_len, true, config, modules_box);
+        modules_box.append(&row);
+    }
+
+    // === Right Side ===
+    modules_box.append(&side_header("Right Side"));
+    let right_len = right.len();
+    for (i, name) in right.iter().enumerate() {
+        let row = build_module_row(name, i, right_len, false, config, modules_box);
+        modules_box.append(&row);
+    }
+
+    // === Disabled ===
+    let placed: Vec<String> = left.iter().chain(right.iter()).cloned().collect();
+    let disabled: Vec<(&str, &str)> = MODULE_DISPLAY
+        .iter()
+        .filter(|(id, _)| !placed.iter().any(|p| p == id))
+        .map(|(id, name)| (*id, *name))
+        .collect();
+
+    if !disabled.is_empty() {
+        modules_box.append(&side_header("Disabled"));
+        for (id, display) in &disabled {
+            let row = build_disabled_row(id, display, config, modules_box);
+            modules_box.append(&row);
+        }
+    }
+}
+
+/// Builds one positioned module row: [pos] [name] [↑] [↓] [switch]
+fn build_module_row(
+    name: &str,
+    idx: usize,
+    total: usize,
+    is_left: bool,
+    config: &Rc<RefCell<Config>>,
+    modules_box: &gtk4::Box,
+) -> gtk4::Box {
+    let row = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+    row.add_css_class("settings-module-row");
+
+    // Position badge
+    let pos = gtk4::Label::new(Some(&format!("{}", idx + 1)));
+    pos.add_css_class("settings-module-pos");
+    pos.set_width_chars(2);
+    pos.set_xalign(1.0);
+    row.append(&pos);
+
+    // Module name
+    let display = if name == "separator" {
+        "── Separator ──"
+    } else {
+        module_display_name(name)
+    };
+    let name_label = gtk4::Label::new(Some(display));
+    name_label.set_hexpand(true);
+    name_label.set_halign(gtk4::Align::Start);
+    name_label.add_css_class("settings-module-name");
+    if name == "separator" {
+        name_label.add_css_class("settings-module-sep-hint");
+    }
+    row.append(&name_label);
+
+    // Up button
+    let up_btn = gtk4::Button::with_label("↑");
+    up_btn.add_css_class("settings-order-btn");
+    up_btn.set_sensitive(idx > 0);
+    {
+        let cfg_c = config.clone();
+        let box_c = modules_box.clone();
+        up_btn.connect_clicked(move |_| {
+            {
+                let mut cfg = cfg_c.borrow_mut();
+                let arr = if is_left {
+                    &mut cfg.modules.left
+                } else {
+                    &mut cfg.modules.right
+                };
+                if idx > 0 {
+                    arr.swap(idx, idx - 1);
+                }
+                let _ = cfg.save();
+            }
+            rebuild_module_order(&box_c, &cfg_c);
+        });
+    }
+    row.append(&up_btn);
+
+    // Down button
+    let down_btn = gtk4::Button::with_label("↓");
+    down_btn.add_css_class("settings-order-btn");
+    down_btn.set_sensitive(idx + 1 < total);
+    {
+        let cfg_c = config.clone();
+        let box_c = modules_box.clone();
+        down_btn.connect_clicked(move |_| {
+            {
+                let mut cfg = cfg_c.borrow_mut();
+                let arr = if is_left {
+                    &mut cfg.modules.left
+                } else {
+                    &mut cfg.modules.right
+                };
+                if idx + 1 < arr.len() {
+                    arr.swap(idx, idx + 1);
+                }
+                let _ = cfg.save();
+            }
+            rebuild_module_order(&box_c, &cfg_c);
+        });
+    }
+    row.append(&down_btn);
+
+    // Remove button (removes from list; non-separator modules appear in Disabled)
+    let remove_btn = gtk4::Button::with_label("✕");
+    remove_btn.add_css_class("settings-order-btn");
+    remove_btn.add_css_class("settings-remove-btn");
+    {
+        let cfg_c = config.clone();
+        let box_c = modules_box.clone();
+        remove_btn.connect_clicked(move |_| {
+            {
+                let mut cfg = cfg_c.borrow_mut();
+                let arr = if is_left {
+                    &mut cfg.modules.left
+                } else {
+                    &mut cfg.modules.right
+                };
+                if idx < arr.len() {
+                    arr.remove(idx);
+                }
+                let _ = cfg.save();
+            }
+            rebuild_module_order(&box_c, &cfg_c);
+        });
+    }
+    row.append(&remove_btn);
+
+    row
+}
+
+/// Builds a disabled module row: [name] [+ Left] [+ Right]
+fn build_disabled_row(
+    id: &str,
+    display: &str,
+    config: &Rc<RefCell<Config>>,
+    modules_box: &gtk4::Box,
+) -> gtk4::Box {
+    let row = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+    row.add_css_class("settings-module-row");
+    row.add_css_class("settings-module-disabled");
+
+    let name_label = gtk4::Label::new(Some(display));
+    name_label.set_hexpand(true);
+    name_label.set_halign(gtk4::Align::Start);
+    name_label.add_css_class("settings-module-name");
+    row.append(&name_label);
+
+    // Add to Left
+    let add_left = gtk4::Button::with_label("+ Left");
+    add_left.add_css_class("settings-order-btn");
+    {
+        let cfg_c = config.clone();
+        let box_c = modules_box.clone();
+        let mid = id.to_string();
+        add_left.connect_clicked(move |_| {
+            {
+                let mut cfg = cfg_c.borrow_mut();
+                if !cfg.modules.left.contains(&mid) {
+                    cfg.modules.left.push(mid.clone());
+                }
+                let _ = cfg.save();
+            }
+            rebuild_module_order(&box_c, &cfg_c);
+        });
+    }
+    row.append(&add_left);
+
+    // Add to Right
+    let add_right = gtk4::Button::with_label("+ Right");
+    add_right.add_css_class("settings-order-btn");
+    {
+        let cfg_c = config.clone();
+        let box_c = modules_box.clone();
+        let mid = id.to_string();
+        add_right.connect_clicked(move |_| {
+            {
+                let mut cfg = cfg_c.borrow_mut();
+                if !cfg.modules.right.contains(&mid) {
+                    cfg.modules.right.push(mid.clone());
+                }
+                let _ = cfg.save();
+            }
+            rebuild_module_order(&box_c, &cfg_c);
+        });
+    }
+    row.append(&add_right);
+
+    row
 }

@@ -2478,3 +2478,65 @@ button:active {
     opacity: 0.5;
     margin-top: 4px;
 }
+
+.settings-side-label {
+    color: @bifrost_cyan;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    opacity: 0.75;
+}
+
+.settings-module-pos {
+    color: @moonlight;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.5;
+    min-width: 14px;
+}
+
+.settings-order-btn {
+    background: alpha(@frost_dark, 0.5);
+    border: 1px solid alpha(@frost_light, 0.25);
+    border-radius: 4px;
+    color: @moonlight;
+    font-size: 11px;
+    padding: 0 5px;
+    min-height: 20px;
+    min-width: 22px;
+    transition: all 100ms ease;
+}
+
+.settings-order-btn:hover {
+    background: alpha(@frost_mid, 0.8);
+    border-color: @bifrost_blue;
+    color: @starlight;
+}
+
+.settings-order-btn:disabled {
+    opacity: 0.25;
+}
+
+.settings-remove-btn {
+    color: @fire_red;
+    border-color: alpha(@fire_red, 0.2);
+}
+
+.settings-remove-btn:hover {
+    background: alpha(@fire_red, 0.15);
+    border-color: @fire_red;
+    color: @fire_red;
+}
+
+.settings-module-sep-hint {
+    color: @moonlight;
+    opacity: 0.4;
+    font-size: 10px;
+}
+
+.settings-module-disabled .settings-module-name {
+    opacity: 0.45;
+}
