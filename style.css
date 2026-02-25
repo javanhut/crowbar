@@ -56,6 +56,11 @@ window {
     background-color: transparent;
 }
 
+/* Make all popover contents transparent so popover background shows through */
+popover > contents {
+    background: transparent;
+}
+
 /* === Bifrost Bridge - Main Bar === */
 .bar-container {
     background: linear-gradient(180deg,
@@ -70,6 +75,36 @@ window {
         inset 0 1px 0 alpha(#7aa2f7, 0.15),
         inset 0 -1px 0 alpha(#000000, 0.3);
     padding: 3px 8px;
+}
+
+/* --- Vertical bar overrides (left/right position) --- */
+.bar-container.bar-vertical {
+    padding: 8px 3px;
+}
+
+.bar-container.bar-top {
+    border-bottom: 2px solid alpha(#7aa2f7, 0.4);
+    border-right: none;
+    border-left: none;
+}
+
+.bar-container.bar-bottom {
+    border-bottom: none;
+    border-top: 2px solid alpha(#7aa2f7, 0.4);
+    border-right: none;
+    border-left: none;
+}
+
+.bar-container.bar-left {
+    border-bottom: none;
+    border-right: 2px solid alpha(#7aa2f7, 0.4);
+    border-left: none;
+}
+
+.bar-container.bar-right {
+    border-bottom: none;
+    border-left: 2px solid alpha(#7aa2f7, 0.4);
+    border-right: none;
 }
 
 /* === Elder Futhark Rune Styling === */
@@ -448,6 +483,271 @@ window {
         0 0 20px alpha(#bb9af7, 0.5);
     margin: 0 4px;
     animation: rune-shimmer 3s ease-in-out infinite;
+}
+
+/* === Clock Popover - The Norns' Weaving === */
+.clock-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.clock-popover {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#bb9af7, 0.35);
+    border-radius: 14px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#bb9af7, 0.5),
+        0 0 60px alpha(#bb9af7, 0.1),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.clock-time-large {
+    color: @starlight;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 28px;
+    font-weight: 700;
+    text-shadow:
+        0 0 12px alpha(#bb9af7, 0.6),
+        0 0 24px alpha(#bb9af7, 0.3);
+    padding: 4px 0;
+}
+
+.clock-date-full {
+    color: @starlight;
+    font-size: 13px;
+    font-weight: 500;
+    padding-bottom: 4px;
+}
+
+.clock-separator {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        alpha(#bb9af7, 0.3) 50%,
+        transparent 100%);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+.clock-timezone-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.clock-timezone-name {
+    color: @bifrost_purple;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 0 8px alpha(@bifrost_purple, 0.4);
+}
+
+.clock-timezone-offset {
+    color: @moonlight;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.clock-timezone-label {
+    color: @moonlight;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* Calendar theming */
+.clock-calendar {
+    background: alpha(@void_dark, 0.9);
+    border: 1px solid alpha(@bifrost_purple, 0.2);
+    border-radius: 8px;
+    color: @starlight;
+}
+
+.clock-calendar header {
+    background: transparent;
+    color: @starlight;
+}
+
+.clock-calendar header button {
+    color: @bifrost_purple;
+}
+
+.clock-calendar header button:hover {
+    color: @bifrost_cyan;
+    background: alpha(@bifrost_purple, 0.15);
+}
+
+.clock-calendar :selected {
+    background: alpha(@bifrost_purple, 0.4);
+    color: @starlight;
+    border-radius: 50%;
+}
+
+.clock-calendar .day {
+    color: @starlight;
+}
+
+.clock-calendar .other-month {
+    color: alpha(@moonlight, 0.3);
+}
+
+.clock-calendar .today {
+    background: alpha(@bifrost_purple, 0.25);
+    border-radius: 50%;
+    font-weight: 700;
+}
+
+/* DST Section */
+.clock-dst-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.clock-dst-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: @mead_gold;
+    text-shadow:
+        0 0 8px alpha(@mead_gold, 0.8),
+        0 0 16px alpha(@mead_gold, 0.4);
+}
+
+.clock-dst-label {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.clock-dst-status {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.clock-dst-status.dst-active {
+    color: @bifrost_teal;
+}
+
+.clock-dst-status.dst-inactive {
+    color: @moonlight;
+}
+
+.clock-dst-switch slider {
+    background: linear-gradient(180deg,
+        #3b4261 0%,
+        #2f3549 100%);
+    border-radius: 12px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.clock-dst-switch:checked slider {
+    background: linear-gradient(180deg,
+        @bifrost_purple 0%,
+        @bifrost_blue 100%);
+}
+
+.clock-dst-switch trough {
+    background: alpha(#1a1b26, 0.8);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 14px;
+    min-width: 48px;
+    min-height: 24px;
+}
+
+.clock-dst-switch:checked trough {
+    background: alpha(@bifrost_purple, 0.2);
+    border-color: alpha(@bifrost_purple, 0.4);
+}
+
+/* NTP Status */
+.clock-ntp-status {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.clock-ntp-status.ntp-synced {
+    color: @bifrost_teal;
+}
+
+.clock-ntp-status.ntp-unsynced {
+    color: @fire_red;
+}
+
+/* World Timezone Viewer */
+.clock-tz-viewer-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.clock-tz-viewer-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: @bifrost_cyan;
+    text-shadow:
+        0 0 8px alpha(@bifrost_cyan, 0.8),
+        0 0 16px alpha(@bifrost_cyan, 0.4);
+}
+
+.clock-tz-dropdown {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 6px;
+    color: @starlight;
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.clock-remote-time {
+    color: @bifrost_cyan;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 14px;
+    font-weight: 600;
+    text-shadow: 0 0 8px alpha(@bifrost_cyan, 0.4);
+    padding: 4px 0;
+}
+
+/* 12h/24h Format Toggle */
+.clock-format-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.clock-format-switch slider {
+    background: linear-gradient(180deg,
+        #3b4261 0%,
+        #2f3549 100%);
+    border-radius: 12px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.clock-format-switch:checked slider {
+    background: linear-gradient(180deg,
+        @bifrost_cyan 0%,
+        @bifrost_blue 100%);
+}
+
+.clock-format-switch trough {
+    background: alpha(#1a1b26, 0.8);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 14px;
+    min-width: 48px;
+    min-height: 24px;
+}
+
+.clock-format-switch:checked trough {
+    background: alpha(@bifrost_cyan, 0.2);
+    border-color: alpha(@bifrost_cyan, 0.4);
 }
 
 /* === Power Button - Gateway to Ragnarok === */
@@ -844,9 +1144,540 @@ button:active {
 }
 
 .mute-label {
-    color: #c0caf5;
+    color: @starlight;
     font-size: 12px;
     font-weight: 500;
+}
+
+/* === Power Popover - Nidavellir's Forge === */
+.power-popover {
+    background: linear-gradient(180deg,
+        alpha(#0d0e14, 0.98) 0%,
+        alpha(#13141c, 0.98) 100%);
+    border: 1px solid alpha(#7aa2f7, 0.35);
+    border-radius: 14px;
+    box-shadow:
+        0 12px 48px alpha(#000000, 0.7),
+        0 0 2px alpha(#7aa2f7, 0.5),
+        0 0 60px alpha(#7aa2f7, 0.1),
+        inset 0 1px 0 alpha(#ffffff, 0.05);
+}
+
+.power-module-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.power-graph {
+    background: alpha(@void_deep, 0.9);
+    border: 1px solid alpha(@bifrost_blue, 0.3);
+    border-radius: 8px;
+}
+
+.power-battery-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.power-battery-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: @leaf_green;
+    text-shadow: 0 0 8px alpha(@leaf_green, 0.6);
+}
+
+.power-battery-title {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.power-battery-status {
+    color: @starlight;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.power-battery-detail {
+    color: @moonlight;
+    font-size: 11px;
+}
+
+.power-battery-watts {
+    color: @bifrost_cyan;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 13px;
+    font-weight: 600;
+    text-shadow: 0 0 8px alpha(@bifrost_cyan, 0.4);
+}
+
+.power-separator {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        alpha(@bifrost_blue, 0.3) 50%,
+        transparent 100%);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+.power-profile-label {
+    color: @mead_gold;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.power-info-footer {
+    color: @moonlight;
+    font-size: 11px;
+    font-style: italic;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+/* System section - Huginn's Eye */
+.power-system-section {
+    padding: 8px;
+    border-radius: 8px;
+    background: alpha(@void_light, 0.5);
+}
+
+.power-system-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: @bifrost_cyan;
+    text-shadow: 0 0 8px alpha(@bifrost_cyan, 0.6);
+}
+
+.power-system-title {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.power-system-label {
+    color: @moonlight;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.power-system-value {
+    color: @bifrost_cyan;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 0 6px alpha(@bifrost_cyan, 0.3);
+}
+
+.power-system-bar {
+    min-height: 6px;
+    border-radius: 3px;
+    margin-top: 2px;
+}
+
+.power-system-bar block.filled {
+    border-radius: 3px;
+}
+
+.power-cpu-bar block.filled {
+    background: linear-gradient(90deg,
+        @bifrost_blue 0%,
+        @bifrost_cyan 100%);
+}
+
+.power-cpu-bar trough {
+    background: alpha(@void_deep, 0.8);
+    border: 1px solid alpha(@bifrost_blue, 0.2);
+    border-radius: 3px;
+}
+
+.power-ram-bar block.filled {
+    background: linear-gradient(90deg,
+        @bifrost_purple 0%,
+        @bifrost_teal 100%);
+}
+
+.power-ram-bar trough {
+    background: alpha(@void_deep, 0.8);
+    border: 1px solid alpha(@bifrost_purple, 0.2);
+    border-radius: 3px;
+}
+
+/* === Night Mode - Nott's Veil === */
+.night-mode-header {
+    background: alpha(@frost_dark, 0.5);
+    border: 1px solid alpha(@fire_orange, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 150ms ease;
+}
+
+.night-mode-header:hover {
+    background: alpha(@frost_mid, 0.7);
+    border-color: alpha(@fire_orange, 0.4);
+}
+
+.night-mode-header.expanded {
+    background: alpha(@frost_mid, 0.6);
+    border-color: alpha(@fire_orange, 0.5);
+    border-radius: 8px 8px 4px 4px;
+}
+
+.night-mode-header-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: @fire_orange;
+    text-shadow: 0 0 8px alpha(@fire_orange, 0.6);
+}
+
+.night-mode-header-title {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.night-mode-arrow {
+    color: @moonlight;
+    font-size: 10px;
+    transition: all 200ms ease;
+}
+
+.night-mode-header:hover .night-mode-arrow {
+    color: @fire_orange;
+}
+
+.night-mode-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", sans-serif;
+    font-size: 14px;
+    color: @fire_orange;
+    text-shadow: 0 0 8px alpha(@fire_orange, 0.5);
+}
+
+.night-mode-label {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.night-mode-switch slider {
+    background: linear-gradient(180deg,
+        #3b4261 0%,
+        #2f3549 100%);
+    border-radius: 12px;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.night-mode-switch:checked slider {
+    background: linear-gradient(180deg,
+        @fire_orange 0%,
+        @mead_gold 100%);
+}
+
+.night-mode-switch trough {
+    background: alpha(#1a1b26, 0.8);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 14px;
+    min-width: 48px;
+    min-height: 24px;
+}
+
+.night-mode-switch:checked trough {
+    background: alpha(@fire_orange, 0.2);
+    border-color: alpha(@fire_orange, 0.4);
+}
+
+.night-temp-slider trough {
+    background: linear-gradient(90deg,
+        alpha(@fire_orange, 0.3) 0%,
+        alpha(@bifrost_blue, 0.2) 100%);
+    border-radius: 6px;
+    min-height: 8px;
+    border: 1px solid alpha(@fire_orange, 0.3);
+}
+
+.night-temp-slider highlight {
+    background: linear-gradient(90deg,
+        @fire_orange 0%,
+        @mead_gold 100%);
+    border-radius: 6px;
+    box-shadow: 0 0 12px alpha(@fire_orange, 0.5);
+}
+
+.night-temp-slider slider {
+    background: linear-gradient(180deg,
+        @sunlight 0%,
+        @fire_orange 100%);
+    border-radius: 50%;
+    min-width: 16px;
+    min-height: 16px;
+    border: 2px solid alpha(#ffffff, 0.3);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        0 0 8px alpha(@fire_orange, 0.4);
+}
+
+.night-temp-slider slider:hover {
+    background: linear-gradient(180deg,
+        #ffffff 0%,
+        @sunlight 100%);
+    box-shadow:
+        0 2px 12px alpha(#000000, 0.5),
+        0 0 16px alpha(@fire_orange, 0.6);
+}
+
+.night-temp-value {
+    color: @fire_orange;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-shadow: 0 0 6px alpha(@fire_orange, 0.4);
+}
+
+/* Audio device section separator */
+.audio-separator {
+    background: alpha(@frost_light, 0.3);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+/* Expandable device section header button */
+.audio-device-header {
+    background: alpha(@frost_dark, 0.5);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 150ms ease;
+}
+
+.audio-device-header:hover {
+    background: alpha(@frost_mid, 0.7);
+    border-color: alpha(@bifrost_cyan, 0.4);
+}
+
+.audio-device-header.expanded {
+    background: alpha(@frost_mid, 0.6);
+    border-color: alpha(@bifrost_cyan, 0.5);
+    border-radius: 8px 8px 4px 4px;
+}
+
+.audio-device-rune {
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 14px;
+    color: @bifrost_cyan;
+    text-shadow: 0 0 8px alpha(@bifrost_cyan, 0.5);
+}
+
+.audio-device-title {
+    color: @starlight;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.audio-device-arrow {
+    color: @moonlight;
+    font-size: 10px;
+    transition: all 200ms ease;
+}
+
+.audio-device-header:hover .audio-device-arrow {
+    color: @bifrost_cyan;
+}
+
+/* Device list container */
+.audio-device-list {
+    padding: 4px 0;
+}
+
+/* Individual device button */
+.audio-device-btn {
+    background: alpha(@frost_dark, 0.4);
+    border: 1px solid alpha(@frost_light, 0.15);
+    border-radius: 6px;
+    padding: 6px 12px;
+    transition: all 150ms ease;
+}
+
+.audio-device-btn label {
+    color: @moonlight;
+    font-size: 11px;
+}
+
+.audio-device-btn:hover {
+    background: alpha(@frost_mid, 0.6);
+    border-color: alpha(@bifrost_blue, 0.4);
+}
+
+.audio-device-btn:hover label {
+    color: @starlight;
+}
+
+.audio-device-btn.active {
+    background: linear-gradient(135deg,
+        alpha(@bifrost_blue, 0.25) 0%,
+        alpha(@bifrost_cyan, 0.15) 100%);
+    border-color: @bifrost_cyan;
+    box-shadow: 0 0 8px alpha(@bifrost_cyan, 0.2);
+}
+
+.audio-device-btn.active label {
+    color: @bifrost_cyan;
+    font-weight: 600;
+}
+
+/* === Source (Microphone) Slider Adjustments === */
+.source-slider highlight {
+    background: linear-gradient(90deg,
+        @bifrost_purple 0%,
+        @bifrost_cyan 100%);
+    border-radius: 6px;
+    box-shadow: 0 0 12px alpha(@bifrost_purple, 0.5);
+}
+
+.source-slider trough {
+    background: linear-gradient(90deg,
+        alpha(@bifrost_purple, 0.2) 0%,
+        alpha(@void_mid, 0.8) 100%);
+    border: 1px solid alpha(@bifrost_purple, 0.3);
+}
+
+.source-slider slider {
+    background: linear-gradient(180deg,
+        @starlight 0%,
+        @bifrost_purple 100%);
+    border: 2px solid alpha(#ffffff, 0.3);
+    box-shadow:
+        0 2px 8px alpha(#000000, 0.4),
+        0 0 8px alpha(@bifrost_purple, 0.4);
+}
+
+.source-slider slider:hover {
+    background: linear-gradient(180deg,
+        #ffffff 0%,
+        @bifrost_purple 100%);
+    box-shadow:
+        0 2px 12px alpha(#000000, 0.5),
+        0 0 16px alpha(@bifrost_purple, 0.6);
+}
+
+.source-slider value {
+    color: @bifrost_purple;
+    text-shadow: 0 0 8px alpha(@bifrost_purple, 0.5);
+}
+
+.source-volume-label {
+    color: @bifrost_purple;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    margin-start: auto;
+}
+
+.source-mute-btn.muted {
+    border-color: alpha(@fire_red, 0.45);
+    background: linear-gradient(180deg,
+        alpha(@fire_red, 0.15) 0%,
+        alpha(@void_mid, 0.8) 100%);
+}
+
+/* === App Mixer - Streams of Yggdrasil === */
+.audio-app-list {
+    padding: 4px 0;
+}
+
+.audio-app-empty {
+    color: @moonlight;
+    font-size: 11px;
+    font-style: italic;
+    padding: 8px;
+}
+
+.audio-app-row {
+    background: alpha(@frost_dark, 0.5);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    margin: 2px 0;
+}
+
+.audio-app-name {
+    color: @starlight;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.audio-app-mute {
+    background: alpha(@frost_mid, 0.5);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    min-width: 24px;
+    min-height: 24px;
+    font-family: "Noto Sans Runic", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+    font-size: 12px;
+    color: @bifrost_cyan;
+}
+
+.audio-app-mute:hover {
+    background: alpha(@frost_light, 0.6);
+    border-color: alpha(@bifrost_cyan, 0.4);
+}
+
+.audio-app-mute.muted {
+    color: @fire_red;
+    border-color: alpha(@fire_red, 0.4);
+    background: alpha(@fire_red, 0.1);
+}
+
+.audio-app-slider trough {
+    min-height: 6px;
+}
+
+.audio-app-slider slider {
+    min-width: 12px;
+    min-height: 12px;
+}
+
+.audio-app-route {
+    background: alpha(@frost_dark, 0.6);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    color: @moonlight;
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+/* === Audio Card Profiles - Forge Profiles === */
+.audio-card-list {
+    padding: 4px 0;
+}
+
+.audio-card-row {
+    background: alpha(@frost_dark, 0.5);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    margin: 2px 0;
+}
+
+.audio-card-name {
+    color: @starlight;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.audio-card-profile-dropdown {
+    background: alpha(@frost_dark, 0.6);
+    border: 1px solid alpha(@frost_light, 0.2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    color: @moonlight;
+    font-size: 10px;
 }
 
 /* === App Tracker - Valhalla's Warriors === */
@@ -957,10 +1788,16 @@ button:active {
     transition: all 150ms ease;
 }
 
-.app-menu-item:hover {
+.app-menu-item:hover,
+.app-menu-item:focus {
     background: linear-gradient(90deg,
         alpha(#7aa2f7, 0.2) 0%,
         alpha(#7aa2f7, 0.08) 100%);
+    outline: none;
+}
+
+.app-menu-item:focus {
+    border: 1px solid alpha(#7aa2f7, 0.3);
 }
 
 .app-menu-item.app-menu-danger:hover {
@@ -1288,4 +2125,418 @@ button:active {
 .media-control-icon {
     -gtk-icon-size: 24px;
     color: #c0caf5;
+}
+
+/* === Expanded Connectivity - WiFi Networks === */
+.wifi-network-list {
+    margin-top: 4px;
+}
+
+.wifi-network-row {
+    background: alpha(@frost_dark, 0.5);
+    border-radius: 6px;
+    padding: 4px;
+    transition: all 150ms ease;
+}
+
+.wifi-network-row:hover {
+    background: alpha(@frost_mid, 0.6);
+}
+
+.wifi-connected {
+    background: linear-gradient(90deg,
+        alpha(@bifrost_teal, 0.15) 0%,
+        alpha(@frost_dark, 0.5) 100%);
+    border-left: 3px solid @bifrost_teal;
+}
+
+.wifi-ssid {
+    color: @starlight;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.wifi-detail {
+    color: @moonlight;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.wifi-signal-icon {
+    -gtk-icon-size: 16px;
+    color: @bifrost_cyan;
+}
+
+.wifi-action-btn {
+    background: alpha(@bifrost_blue, 0.2);
+    border: 1px solid alpha(@bifrost_blue, 0.3);
+    border-radius: 4px;
+    color: @bifrost_cyan;
+    padding: 2px 8px;
+    font-size: 11px;
+    min-height: 24px;
+    transition: all 150ms ease;
+}
+
+.wifi-action-btn:hover {
+    background: alpha(@bifrost_blue, 0.4);
+    border-color: @bifrost_blue;
+}
+
+.wifi-forget-btn {
+    background: alpha(@fire_red, 0.15);
+    border: 1px solid alpha(@fire_red, 0.3);
+    border-radius: 4px;
+    color: @fire_red;
+    padding: 2px 8px;
+    font-size: 11px;
+    min-height: 24px;
+    transition: all 150ms ease;
+}
+
+.wifi-forget-btn:hover {
+    background: alpha(@fire_red, 0.3);
+    border-color: @fire_red;
+}
+
+.wifi-password-entry {
+    margin-top: 4px;
+}
+
+.wifi-password-input {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 4px;
+    color: @starlight;
+    padding: 4px 8px;
+    font-size: 12px;
+    min-height: 28px;
+}
+
+.wifi-password-input:focus {
+    border-color: @bifrost_blue;
+    box-shadow: 0 0 6px alpha(@bifrost_blue, 0.3);
+}
+
+.wifi-scan-btn {
+    background: alpha(@frost_dark, 0.6);
+    border: 1px solid alpha(@frost_light, 0.3);
+    border-radius: 6px;
+    color: @moonlight;
+    padding: 6px;
+    margin-top: 4px;
+    transition: all 150ms ease;
+}
+
+.wifi-scan-btn:hover {
+    background: alpha(@frost_mid, 0.8);
+    border-color: @bifrost_blue;
+    color: @starlight;
+}
+
+.wifi-hidden-form {
+    padding: 8px;
+    background: alpha(@frost_dark, 0.5);
+    border-radius: 6px;
+}
+
+/* === Expanded Connectivity - Bluetooth Devices === */
+.connectivity-subtitle {
+    color: @moonlight;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+.connectivity-empty {
+    color: @moonlight;
+    font-size: 12px;
+    font-style: italic;
+    opacity: 0.5;
+    padding: 8px;
+}
+
+.bt-device-row {
+    background: alpha(@frost_dark, 0.5);
+    border-radius: 6px;
+    padding: 6px;
+    transition: all 150ms ease;
+}
+
+.bt-device-row:hover {
+    background: alpha(@frost_mid, 0.6);
+}
+
+.bt-connected {
+    background: linear-gradient(90deg,
+        alpha(@bifrost_blue, 0.15) 0%,
+        alpha(@frost_dark, 0.5) 100%);
+    border-left: 3px solid @bifrost_blue;
+}
+
+.bt-device-name {
+    color: @starlight;
+    font-size: 13px;
+}
+
+.bt-battery {
+    color: @leaf_green;
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+.bt-scan-btn {
+    background: alpha(@frost_dark, 0.6);
+    border: 1px solid alpha(@frost_light, 0.3);
+    border-radius: 6px;
+    color: @moonlight;
+    padding: 6px;
+    margin-top: 4px;
+    transition: all 150ms ease;
+}
+
+.bt-scan-btn:hover {
+    background: alpha(@frost_mid, 0.8);
+    border-color: @bifrost_purple;
+    color: @starlight;
+}
+
+.bt-pair-btn {
+    background: alpha(@bifrost_purple, 0.2);
+    border: 1px solid alpha(@bifrost_purple, 0.3);
+    border-radius: 4px;
+    color: @bifrost_purple;
+    padding: 2px 8px;
+    font-size: 11px;
+    min-height: 24px;
+    transition: all 150ms ease;
+}
+
+.bt-pair-btn:hover {
+    background: alpha(@bifrost_purple, 0.4);
+    border-color: @bifrost_purple;
+}
+
+/* === Application Finder === */
+.app-finder {
+    margin: 0 2px;
+}
+
+.app-finder-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.app-finder-popover {
+    background: alpha(@void_dark, 0.95);
+    border: 1px solid alpha(@bifrost_purple, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px alpha(#000000, 0.6);
+}
+
+.app-finder-search {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 8px;
+    color: @starlight;
+    padding: 8px 12px;
+    font-size: 14px;
+    min-height: 32px;
+}
+
+.app-finder-search:focus {
+    border-color: @bifrost_purple;
+    box-shadow: 0 0 8px alpha(@bifrost_purple, 0.3);
+}
+
+.app-finder-row {
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: all 150ms ease;
+}
+
+.app-finder-row-hover,
+.app-finder-row-selected {
+    background: alpha(@frost_dark, 0.6);
+}
+
+.app-finder-row-selected {
+    border: 1px solid alpha(@bifrost_purple, 0.4);
+}
+
+.app-finder-icon {
+    -gtk-icon-size: 32px;
+}
+
+.app-finder-name {
+    color: @starlight;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.app-finder-comment {
+    color: @moonlight;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+/* === Settings Menu === */
+.settings {
+    margin: 0 2px;
+}
+
+.settings-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.settings-popover {
+    background: alpha(@void_dark, 0.95);
+    border: 1px solid alpha(@mead_gold, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px alpha(#000000, 0.6);
+}
+
+.settings-section-label {
+    color: @mead_gold;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.settings-separator {
+    background: alpha(@frost_light, 0.3);
+    min-height: 1px;
+    margin: 4px 0;
+}
+
+.settings-theme-btn {
+    background: alpha(@frost_dark, 0.6);
+    border: 1px solid alpha(@frost_light, 0.3);
+    border-radius: 6px;
+    color: @moonlight;
+    padding: 6px 4px;
+    font-size: 11px;
+    min-height: 28px;
+    transition: all 150ms ease;
+}
+
+.settings-theme-btn:hover {
+    background: alpha(@frost_mid, 0.8);
+    border-color: @bifrost_blue;
+    color: @starlight;
+}
+
+.settings-theme-btn.active {
+    background: linear-gradient(135deg,
+        alpha(@bifrost_blue, 0.3) 0%,
+        alpha(@bifrost_purple, 0.2) 100%);
+    border-color: @bifrost_blue;
+    color: @bifrost_cyan;
+    box-shadow: 0 0 8px alpha(@bifrost_blue, 0.2);
+}
+
+.settings-module-row {
+    padding: 4px 0;
+}
+
+.settings-module-name {
+    color: @starlight;
+    font-size: 12px;
+}
+
+.settings-module-switch {
+    min-width: 36px;
+    min-height: 18px;
+}
+
+.settings-spin {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 4px;
+    color: @starlight;
+    min-width: 60px;
+}
+
+.settings-dropdown {
+    background: alpha(@void_light, 0.8);
+    border: 1px solid alpha(@frost_light, 0.5);
+    border-radius: 4px;
+    color: @starlight;
+}
+
+.settings-note {
+    color: @moonlight;
+    font-size: 10px;
+    font-style: italic;
+    opacity: 0.5;
+    margin-top: 4px;
+}
+
+.settings-side-label {
+    color: @bifrost_cyan;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    opacity: 0.75;
+}
+
+.settings-module-pos {
+    color: @moonlight;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.5;
+    min-width: 14px;
+}
+
+.settings-order-btn {
+    background: alpha(@frost_dark, 0.5);
+    border: 1px solid alpha(@frost_light, 0.25);
+    border-radius: 4px;
+    color: @moonlight;
+    font-size: 11px;
+    padding: 0 5px;
+    min-height: 20px;
+    min-width: 22px;
+    transition: all 100ms ease;
+}
+
+.settings-order-btn:hover {
+    background: alpha(@frost_mid, 0.8);
+    border-color: @bifrost_blue;
+    color: @starlight;
+}
+
+.settings-order-btn:disabled {
+    opacity: 0.25;
+}
+
+.settings-remove-btn {
+    color: @fire_red;
+    border-color: alpha(@fire_red, 0.2);
+}
+
+.settings-remove-btn:hover {
+    background: alpha(@fire_red, 0.15);
+    border-color: @fire_red;
+    color: @fire_red;
+}
+
+.settings-module-sep-hint {
+    color: @moonlight;
+    opacity: 0.4;
+    font-size: 10px;
+}
+
+.settings-module-disabled .settings-module-name {
+    opacity: 0.45;
 }

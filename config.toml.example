@@ -1,0 +1,44 @@
+# CrowBar Configuration
+# Nordic Aesir Status Bar for Hyprland
+#
+# Place this file at ~/.config/crowbar/config.toml
+# All fields are optional - defaults are used for missing values.
+
+[bar]
+# Bar height in pixels
+height = 32
+
+# Bar position: "top" or "bottom"
+position = "top"
+
+# Monitor filter: "" for all monitors, or specific name like "DP-1"
+monitor = ""
+
+[modules]
+# Modules displayed on the left side of the bar
+left = ["workspaces", "separator", "window_title", "app_tracker", "media"]
+
+# Modules displayed on the right side of the bar
+right = ["systray", "connectivity", "audio", "brightness", "power", "battery", "separator", "clock", "power_menu"]
+
+[intervals]
+# Clock update interval in seconds
+clock = 1
+
+# Battery status polling interval in seconds
+battery = 30
+
+# Power/temperature polling interval in seconds
+power = 10
+
+# Brightness polling interval in seconds
+brightness = 5
+
+# Connectivity (WiFi/Bluetooth) polling interval in seconds
+connectivity = 5
+
+# Media player polling interval in seconds
+media = 2
+
+# App tracker polling interval in seconds
+app_tracker = 2
